@@ -13,8 +13,17 @@ public class Main {
 	
 	public static void main(String args[]) {
 		if(args.length == 4){
+			EmbeddedSQL db = null;
 			try {
-				db = new EmbeddedSQL(args[0], args[1], args[2], args[3]);
+				 // use postgres JDBC driver.
+		         Class.forName ("org.postgresql.Driver").newInstance ();
+		         // instantiate the EmbeddedSQL object and creates a physical
+		         // connection.
+		         String dbname = args[0];
+		         String dbport = args[1];
+		         String user = args[2];
+		         String passwd = args[3];
+		         db = new EmbeddedSQL (dbname, dbport, user, passwd);
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}
@@ -334,7 +343,7 @@ public class Main {
 			System.out.println(e.toString());
 		}
 		
-		System.out.println(t);
+		System.out.println(t.toString());
 	}
 	
 }
