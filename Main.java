@@ -15,6 +15,7 @@ public class Main {
 	
 	
 	static ArrayList<String> searchResults = new ArrayList<String>();
+	static String movieInfo = "";
 
 	public static void main(String args[]) {
 		if(args.length == 4){
@@ -194,23 +195,29 @@ public class Main {
 
 			lockRepeat = true;
 			while (lockRepeat){
+
 				System.out.println("CHOOSE MOVIE TO VIEW.");
 				System.out.println("0.\tBACK TO MOIVE SEARCH OPTIONS");
 				for(int i = 0; i < searchResults.size(); i++){
 					System.out.printf("%d.\t%s\n",i+1,searchResults.get(i));			
 				}
+				if(searchResults.size() == 0)
+					{System.out.println("No searches found");}
+
 
 				int input = getIntInput();
 				if (input == 0) {
 					page = Page.MOVIE_SEARCH;
 					lockRepeat = false;
 				}
-				else if(input < searchResults.size()){
+				else if(input < searchResults.size() + 1){
+					movieInfo = "";
+					getmovieInfo(searchResults.get(input-1));
 					page = Page.MOVIE_INFO;
+					lockRepeat = false;
 				}
-
 				else{
-					System.out.println("Invalid input. Please try again.");
+					System.out.println("Invalid input. Please try again.\n\n");
 				}
 			}
 			break;
@@ -220,23 +227,23 @@ public class Main {
 		//DETAIL MOVIE INFORMTION	
 		case MOVIE_INFO:
 			clearConsole();
-			System.out.println("=INSERT MOVIE NAME TITLE HERE INFO=-");
 
 			lockRepeat = true;
 			while (lockRepeat){
+				System.out.println(movieInfo + "\n\n");
 				System.out.println("\n Please select what you would like to view:");
 				System.out.println("1.\tORDER DVD");
 				System.out.println("2.\tWATCH ONLINE");
 				System.out.println("3.\tVIEW COMMENTS");
 				System.out.println("4.\tWRITE A COMMENT");
-				System.out.println("0.\tBACK TO MAIN MENU");
+				System.out.println("0.\tBACK TO SEARCH RESULTS");
 				
 				int input = getIntInput();
 				
 				switch (input) {
 				
 				case 0:
-					page = Page.MAIN_MENU;
+					page = Page.SEARCH_RESULTS;
 					lockRepeat = false;
 					break;
 
@@ -417,7 +424,12 @@ public class Main {
 		else if(searchType == 2){
 			sql_getAllTitles();
 		}
+	}
 
+	public static void getmovieInfo(String movie){
+		String moviename = movie.substring(0,movie.indexOf(","));
+		System.out.println("'"+ moviename+"'");
+		sql_getmovieInfo(moviename);
 	}
 
 	//////////////////////////////////////////////
@@ -455,10 +467,39 @@ public class Main {
 		//example:
 		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
 		String s2 = "Man of Steel, Zack Snyder, Action, Movie, $20";
-		String s3 = "Community, Anthony Russo, Comedy, Series, $100";
+		String s3 = "Community - Spanish 101, Anthony Russo, Comedy, Series, $5";
 		searchResults.add(s);
 		searchResults.add(s2);
 		searchResults.add(s3);
+	}
+
+	//TODO:: SQL QUERY TO GET MOVIE INFO OF SPECIFIC MOVIEss
+	public static void sql_getmovieInfo(String moviename){
+		
+		//Figure out if its a tv series
+		Boolean isSeries = false;		
+
+		//put into strings(s) with following format
+		//example:
+		String title = moviename;
+		String director = "director name";
+		String author = "author name";
+		String genre = "genre type";
+		String category = "category type";
+		String price = "$$price";
+		String views = "# of views";
+		String avgRating = "avg rating";
+		String yourRating = "your rating";
+		String episodeNum = "episodeNumber"; //Can avoid if not tv series
+		String seasonNum = "seasonNumber"; //Can avoid if not tv series
+
+
+		movieInfo += "Title:\t\t " + title + "\nDirector:\t " + director + "\nWritten By:\t " + author + "\nGenre:\t\t " + genre
+					+ "\nCategory:\t " + category + "\nPrice:\t\t " + price + "\nViews:\t\t " + views
+					+ "\nRating:\t\t " + avgRating + "\nYour Rating:\t " + yourRating;
+		if(isSeries){
+			movieInfo += "\nEpisode Number: " + episodeNum + "\nSeason Number: " + seasonNum;	
+		}
 	}
 
 	public static Table runQuery(String query){
