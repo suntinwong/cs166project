@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Main {
 
-	//This does nothing. Don't worry about it...
+	//This does nothing. Don't worry about it... testing comment 123
 	public Main() {}
 	
 	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS};
