@@ -17,7 +17,6 @@ public class Main {
 		while(true){
 			printPrompt();
 		}
-		
 	}
 	
 	public static void printPrompt(){
@@ -31,7 +30,6 @@ public class Main {
 		case LOGIN:
 			System.out.println("Welcome to MovieNet!");
 			System.out.println("\n\n\n-=LOGIN MENU=-");
-			
 			
 			lockRepeat = true;
 			while (lockRepeat){
@@ -223,28 +221,37 @@ public class Main {
 	
 	//////////////////////////////////////////////
 	/////////////Create & Delete/////////////////
+	/////////////////////////////////////////////
 	
 	//TODO: Finish this function
 	//Creates a new account. Stores the data in the database.
 	//TODO: Get address and other info?
 	public static void createNewAccount(){
+
+		clearConsole();
 		System.out.println("Please enter the following data:");
-		System.out.println("USERNAME:");
-		String userNameInput = getStringInput();
+
+		String usernameInput = getCheckInput("USERNAME",true);		
+		String passwordInput = getCheckInput("PASSWORD",true);
+		String firstInput = getCheckInput("First name",true);		
+		String middleInput = getCheckInput("Middle name",false);		
+		String lastInput  = getCheckInput("Last name",true);		
+		String streetInput = getCheckInput("Address - street",false);
+		String stateInput = getCheckInput("Address - state",false);
+		String countryInput = getCheckInput("Address - country",false);
+		String zipInput = getCheckInput("Address - zipcode",false);
+
+		//TODO actually create the account
 		
-		//TODO: Check if username is NOT already in database
-		
-		System.out.println("PASSWORD:");
-		String paswordInput = getStringInput();
-		
-		System.out.println("Account Created!");
+		System.out.println("\nAccount Created!");
 		System.out.println("Returning to the login page...");
 		page = Page.LOGIN;
 	}
 	
 	
 	//////////////////////////////////////////////
-	/////////////Utility Functions///////////////
+	/////////////Utility Functions////////////////
+	//////////////////////////////////////////////
 	
 	public static String getStringInput(){
 		Scanner in = new Scanner(System.in);
@@ -265,6 +272,49 @@ public class Main {
 		float result = in.nextFloat();
 		//in.close();
 		return result;
+	}
+
+	public static String getCheckInput(String s, Boolean required){
+
+		Boolean valid = false; //flag to indicate if we can move to the next item
+		String returnval = "";
+
+		while(!valid){
+			System.out.printf("%s: ",s);
+			String Input = getStringInput();
+
+			//When speical case passwords
+			String Input2 = "";
+			if(s.equals("PASSWORD")){
+				System.out.printf("CONFIRM PASSWORD: ");
+				Input2 = getStringInput();
+			}
+
+			//TODO: Check if it is NOT already in database
+			Boolean inDatabase = false;
+			if(s.equals("USERNAME")){} //speical case for username
+
+			//Check to see if its a valid input
+			if(s.equals("PASSWORD") && !Input.equals(Input2))
+				{System.out.println("Passwords to not match. Try again.");}
+			else if( (!Input.equals("") || !required) && Input.length() < 20 && !inDatabase)
+				{returnval = Input; valid = true;}
+			else if(Input.length() >= 20)
+				{System.out.printf("Invalid %s, too long. Try Again.\n",s);}
+			else 
+				{System.out.printf("Invalid %s. Try Again.\n",s);}
+		}
+		return returnval;
+	}
+
+	//////////////////////////////////////////////
+	/////////////Helper Functions////////////////
+	//////////////////////////////////////////////
+
+	public static void clearConsole(){
+		for(int i = 0; i < 50; i++){
+			System.out.printf("\n");
+		}
 	}
 	
 }
