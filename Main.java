@@ -13,6 +13,9 @@ public class Main {
 	static EmbeddedSQL db = null;
 	static Boolean dbLoaded = false;
 	
+	
+	static ArrayList<String> searchResults = new ArrayList<String>();
+
 	public static void main(String args[]) {
 		if(args.length == 4){
 			try {
@@ -159,16 +162,19 @@ public class Main {
 
 				case 1:
 					page = Page.SEARCH_RESULTS;
+					search_by(0);
 					lockRepeat = false;
 					break;
 			
 				case 2:
 					page = Page.SEARCH_RESULTS;
+					search_by(1);
 					lockRepeat = false;
 					break;
 
 				case 3:
 					page = Page.SEARCH_RESULTS;
+					search_by(2);
 					lockRepeat = false;
 					break;
 
@@ -188,20 +194,23 @@ public class Main {
 
 			lockRepeat = true;
 			while (lockRepeat){
+				System.out.println("CHOOSE MOVIE TO VIEW.");
 				System.out.println("0.\tBACK TO MOIVE SEARCH OPTIONS");
-				
+				for(int i = 0; i < searchResults.size(); i++){
+					System.out.printf("%d.\t%s\n",i+1,searchResults.get(i));			
+				}
+
 				int input = getIntInput();
-				
-				switch (input) {
-				
-				case 0:
+				if (input == 0) {
 					page = Page.MOVIE_SEARCH;
 					lockRepeat = false;
-					break;
+				}
+				else if(input < searchResults.size()){
+					page = Page.MOVIE_INFO;
+				}
 
-				default:
+				else{
 					System.out.println("Invalid input. Please try again.");
-					break;
 				}
 			}
 			break;
@@ -344,6 +353,12 @@ public class Main {
 		return result;
 	}
 
+	public static void clearConsole(){
+		for(int i = 0; i < 50; i++){
+			System.out.printf("\n");
+		}
+	}
+
 	public static String getCheckInput(String s, Boolean required){
 
 		clearConsole();
@@ -380,38 +395,70 @@ public class Main {
 		return returnval;
 	}
 
-	//////////////////////////////////////////////
-	/////////////Helper Functions////////////////
-	//////////////////////////////////////////////
+	public static void search_by(int searchType){
 
-	public static void clearConsole(){
-		for(int i = 0; i < 50; i++){
-			System.out.printf("\n");
-		}
-	}
-
-	public static void search_by(int searchType, String search){
+		searchResults.clear();
 
 		//Search by title
 		if(searchType == 0){
 			System.out.printf("Enter title name: ");
 			String Input = getStringInput();
+			sql_getTitle(Input);		
 		}
 		
 		//Search by directors
 		else if(searchType == 1){
-			System.out.printf("Enter title name: ");
+			System.out.printf("Enter director name: ");
 			String Input = getStringInput();
-
+			sql_getDirector(Input);
 		}
 
 		//LIST ALL titles
 		else if(searchType == 2){
-			System.out.printf("Enter title name: ");
-			String Input = getStringInput();
-
+			sql_getAllTitles();
 		}
 
+	}
+
+	//////////////////////////////////////////////
+	/////////////SQL Functions////////////////
+	//////////////////////////////////////////////
+
+	//TODO: SQL QUERY TO RETURN movies searched by title
+	public static void sql_getTitle(String Input){
+
+		//put into array with format: [Title], [director], [genre], [Category], [price]
+		//example:
+		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
+		String s2 = "Man of Steel, Zack Snyder, Action, Movie, $20";
+		searchResults.add(s);
+		searchResults.add(s2);
+	}
+
+	
+	//TODO: SQL QUERY TO RETURN movies searched by director
+	public static void sql_getDirector(String Input){
+
+		//put into array with format: [Title], [director], [genre], [Category], [price]
+		//example:
+		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
+		String s3 = "Community, Anthony Russo, Comedy, Series, $100";
+		searchResults.add(s);
+		searchResults.add(s3);
+
+	}
+
+	//TODO:: SQL QUERY TO PRINT ALL movies,sorted by title
+	public static void sql_getAllTitles(){
+
+		//put into array with format: [Title], [director], [genre], [Category], [price]
+		//example:
+		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
+		String s2 = "Man of Steel, Zack Snyder, Action, Movie, $20";
+		String s3 = "Community, Anthony Russo, Comedy, Series, $100";
+		searchResults.add(s);
+		searchResults.add(s2);
+		searchResults.add(s3);
 	}
 
 	public static Table runQuery(String query){
