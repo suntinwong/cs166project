@@ -282,7 +282,8 @@ public class Main {
 		String passwordInput = getStringInput();
 
 		//Validate log in
-		if (validateLogin(usernameInput, passwordInput)) {
+		//TODO: Remove this testing parameter !dbloaded
+		if (!dbLoaded || validateLogin(usernameInput, passwordInput)) {
 			USERNAME = usernameInput;
 			page = Page.MAIN_MENU;
 		}
