@@ -1,4 +1,6 @@
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 
@@ -12,7 +14,7 @@ public class Main {
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
 	static Boolean dbLoaded = false;
-	
+	static String currMovie = null;
 	
 	static ArrayList<String> searchResults = new ArrayList<String>();
 	static String movieInfo = "";
@@ -147,6 +149,7 @@ public class Main {
 			lockRepeat = true;
 			while (lockRepeat){
 				System.out.println("\n Please select what you would like to view:");
+				System.out.println("99.\t[Testing] View First Movie");
 				System.out.println("1.\tSEARCH BY TITLE");
 				System.out.println("2.\tSEARCH BY DIRECTOR");
 				System.out.println("3.\tLIST ALL MOVIE TITLES");
@@ -155,6 +158,13 @@ public class Main {
 				int input = getIntInput();
 				
 				switch (input) {
+				
+				//TODO: Get rid of this in final version
+				case 99:
+					currMovie = getFirstMovie();
+					page = Page.MOVIE_INFO;
+					lockRepeat = false;
+					break;
 				
 				case 0:
 					page = Page.MAIN_MENU;
@@ -227,10 +237,11 @@ public class Main {
 		//DETAIL MOVIE INFORMTION	
 		case MOVIE_INFO:
 			clearConsole();
-
+			System.out.println("-=MOVIE INFO=-");
+			
 			lockRepeat = true;
 			while (lockRepeat){
-				System.out.println(movieInfo + "\n\n");
+				sql_printMovieInfo(currMovie);
 				System.out.println("\n Please select what you would like to view:");
 				System.out.println("1.\tORDER DVD");
 				System.out.println("2.\tWATCH ONLINE");
@@ -269,7 +280,47 @@ public class Main {
 		//USER'S SETTINGS
 		case SETTINGS:
 			clearConsole();
-			System.out.println("=SETTINGS=-");
+			System.out.println("-=SETTINGS=-");
+			
+			lockRepeat = true;
+			while (lockRepeat){
+				System.out.println("\n Please select the setting you would like to change:");
+				System.out.println("1.\tCHECK BALANCE");
+				System.out.println("2.\tINCREASE BALANCE");
+				System.out.println("3.\tMAKE ACCOUNT PRIVATE");
+				System.out.println("4.\tMAKE ACCOUNT PUBLIC");
+				System.out.println("0.\tBACK");
+				
+				int input = getIntInput();
+				
+				switch (input) {
+
+				case 1:
+					sql_getBalance();
+					break;
+					
+				case 2:
+					sql_increaseBalance();
+					break;
+					
+				case 3:
+					System.out.println("Privacy Features aren't implemented in the SQL...");
+					break;
+					
+				case 4:
+					System.out.println("Privacy Features aren't implemented in the SQL...");
+					break;
+					
+				case 0:
+					page = Page.MAIN_MENU;
+					lockRepeat = false;
+					break;
+					
+				default:
+					System.out.println("Invalid input. Please try again.");
+					break;
+				}
+			}
 			break;
 
 		default:
@@ -438,6 +489,12 @@ public class Main {
 		System.out.println("'"+ moviename+"'");
 		sql_getmovieInfo(moviename);
 	}
+	
+	public static String getTimeStamp(){
+		Date date = new Date( );
+		SimpleDateFormat ft = new SimpleDateFormat ("yyyy.MM.dd hh:mm:ss a");
+		return String.format(ft.format(date));
+	}
 
 	//////////////////////////////////////////////
 	/////////////SQL Functions////////////////
@@ -478,6 +535,37 @@ public class Main {
 		searchResults.add(s);
 		searchResults.add(s2);
 		searchResults.add(s3);
+	}
+	
+	public static void sql_getBalance(){
+		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
+		String balance = t.getInfoFromColumn("balance").get(0);
+		System.out.print("Current Balance: " + balance);
+	}
+	
+	public static void sql_printMovieInfo(String video_id){
+		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
+		String title = t.getInfoFromFirstTuple("title");
+		String year = t.getInfoFromFirstTuple("year");
+		String online_price = t.getInfoFromFirstTuple("online_price");
+		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
+		
+		System.out.println("Title: " + title);
+		System.out.println("Year: " + year);
+		System.out.println("Online Price: $" + online_price);
+		System.out.println("DVD Price: $" + dvd_price);
+		System.out.println("================================");
+	}
+	
+	public static void sql_increaseBalance(){
+		System.out.println("How much would you like to add?");
+		int amount = getIntInput();
+		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
+		String balance = t.getInfoFromColumn("balance").get(0);
+		Integer bal = Integer.valueOf(balance) + amount;
+		String balance2 = bal.toString();
+		System.out.print("New Balance: " + balance2);
+		dbUpdate("UPDATE users SET balance=" + balance2 + " WHERE user_id = '" + USERNAME + "'");
 	}
 
 	//TODO:: SQL QUERY TO GET MOVIE INFO OF SPECIFIC MOVIEss
@@ -574,5 +662,12 @@ public class Main {
 		else{
 			System.out.println("DB not loaded, no testing :(");
 		}
+	}
+	
+	public static String getFirstMovie(){
+		Table t = runQuery("SELECT video_id FROM video");
+		String id = t.getInfoFromColumn("video_id").get(0);
+		System.out.print("Obtained: " + id);
+		return id;
 	}
 }
