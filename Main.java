@@ -6,7 +6,7 @@ public class Main {
 	//This does nothing. Don't worry about it... testing comment 123
 	public Main() {}
 	
-	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS};
+	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS};
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
 	
@@ -28,6 +28,7 @@ public class Main {
 		
 		//LOGIN SCREEN
 		case LOGIN:
+			clearConsole();
 			System.out.println("Welcome to MovieNet!");
 			System.out.println("\n\n\n-=LOGIN MENU=-");
 			
@@ -69,7 +70,8 @@ public class Main {
 			
 		//MAIN MENU
 		case MAIN_MENU:
-			System.out.println("\n\n\n-=MAIN MENU=-");
+			clearConsole();
+			System.out.println("=MAIN MENU=-");
 			
 			lockRepeat = true;
 			while (lockRepeat){
@@ -112,7 +114,8 @@ public class Main {
 		
 		//MOVE SEARCH PAGE
 		case MOVIE_SEARCH:
-			System.out.println("\n\n\n-=MOVIE SEARCH=-");
+			clearConsole();
+			System.out.println("=MOVIE SEARCH=-");
 			
 			lockRepeat = true;
 			while (lockRepeat){
@@ -131,6 +134,21 @@ public class Main {
 					lockRepeat = false;
 					break;
 
+				case 1:
+					page = Page.SEARCH_RESULTS;
+					lockRepeat = false;
+					break;
+			
+				case 2:
+					page = Page.SEARCH_RESULTS;
+					lockRepeat = false;
+					break;
+
+				case 3:
+					page = Page.SEARCH_RESULTS;
+					lockRepeat = false;
+					break;
+
 				default:
 					System.out.println("Invalid input. Please try again.");
 					break;
@@ -139,10 +157,38 @@ public class Main {
 				
 				
 			break;
+
+		//Movie Search Results
+		case SEARCH_RESULTS:
+			clearConsole();
+			System.out.println("=Search_results=-");
+
+			lockRepeat = true;
+			while (lockRepeat){
+				System.out.println("0.\tBACK TO MOIVE SEARCH OPTIONS");
+				
+				int input = getIntInput();
+				
+				switch (input) {
+				
+				case 0:
+					page = Page.MOVIE_SEARCH;
+					lockRepeat = false;
+					break;
+
+				default:
+					System.out.println("Invalid input. Please try again.");
+					break;
+				}
+			}
+			break;
+			
+
 			
 		//DETAIL MOVIE INFORMTION	
 		case MOVIE_INFO:
-			System.out.println("\n\n\n-=INSERT MOVIE NAME TITLE HERE INFO=-");
+			clearConsole();
+			System.out.println("=INSERT MOVIE NAME TITLE HERE INFO=-");
 
 			lockRepeat = true;
 			while (lockRepeat){
@@ -171,17 +217,20 @@ public class Main {
 		
 		//USER'S FOLLOWING WALL OF INFO
 		case FOLLOWING:
-			System.out.println("\n\n\n-=FOLLOWING WALL=-");
+			clearConsole();
+			System.out.println("=FOLLOWING WALL=-");
 			break;
 			
 		//ADD/REMOVE THE ACCOUTN USER IS FOLLOWING	
 		case FOLLOWING_EDIT:
-			System.out.println("\n\n\n-=EDIT PEOPLE I AM FOLLOWING=-");
+			clearConsole();
+			System.out.println("=EDIT PEOPLE I AM FOLLOWING=-");
 			break;
 			
 		//USER'S SETTINGS
 		case SETTINGS:
-			System.out.println("\n\n\n-=SETTINGS=-");
+			clearConsole();
+			System.out.println("=SETTINGS=-");
 			break;
 
 		default:
@@ -216,7 +265,7 @@ public class Main {
 		page = Page.LOGIN;
 		System.out.println("You have successfully logged out.");
 		System.out.println("Good-Bye!");
-		System.out.println("\n\n\n\n\n\n\n");
+		clearConsole();
 	}
 	
 	//////////////////////////////////////////////
@@ -228,9 +277,6 @@ public class Main {
 	//TODO: Get address and other info?
 	public static void createNewAccount(){
 
-		clearConsole();
-		System.out.println("Please enter the following data:");
-
 		String usernameInput = getCheckInput("USERNAME",true);		
 		String passwordInput = getCheckInput("PASSWORD",true);
 		String firstInput = getCheckInput("First name",true);		
@@ -240,6 +286,7 @@ public class Main {
 		String stateInput = getCheckInput("Address - state",false);
 		String countryInput = getCheckInput("Address - country",false);
 		String zipInput = getCheckInput("Address - zipcode",false);
+		String preferencesInput = getCheckInput("Preferred Generes",false);
 
 		//TODO actually create the account
 		
@@ -275,6 +322,9 @@ public class Main {
 	}
 
 	public static String getCheckInput(String s, Boolean required){
+
+		clearConsole();
+		System.out.println("Please enter the following data:");
 
 		Boolean valid = false; //flag to indicate if we can move to the next item
 		String returnval = "";
@@ -316,5 +366,9 @@ public class Main {
 			System.out.printf("\n");
 		}
 	}
-	
+
+	public static void search_by(int searchType, String search){
+
+	}
+
 }
