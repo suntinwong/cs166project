@@ -1,2 +1,3 @@
 #put stuff here to ignore
-.class
+*.class
+*.java~
