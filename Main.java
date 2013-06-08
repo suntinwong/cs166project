@@ -355,6 +355,22 @@ public class Main {
 		case FOLLOWING_EDIT:
 			clearConsole();
 			System.out.println("=EDIT PEOPLE I AM FOLLOWING=-");
+			lockRepeat = true;
+			while(lockRepeat){
+				System.out.println("Select whom to stop following");
+				System.out.println("0.\tBACK TO MY WALL");
+				int input = getIntInput();
+				switch (input) {
+					case 0:
+						page = Page.FOLLOWING;
+						lockRepeat = false;
+						break;
+
+					default:
+						System.out.println("Invalid input. Please try again.");
+						break;
+				}
+			}
 			break;
 			
 		//USER'S SETTINGS
