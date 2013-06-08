@@ -281,8 +281,8 @@ public class Main {
 		System.out.println("PASSWORD:");
 		String passwordInput = getStringInput();
 
-		//TODO: If login is correct, do this. otherwise exit...
-		if (true) {
+		//Validate log in
+		if (validateLogin(usernameInput, passwordInput)) {
 			USERNAME = usernameInput;
 			page = Page.MAIN_MENU;
 		}
@@ -313,14 +313,20 @@ public class Main {
 		String passwordInput = getCheckInput("PASSWORD",true);
 		String firstInput = getCheckInput("First name",true);		
 		String middleInput = getCheckInput("Middle name",false);		
-		String lastInput  = getCheckInput("Last name",true);		
-		String streetInput = getCheckInput("Address - street",false);
+		String lastInput  = getCheckInput("Last name",true);
+		String emailInput  = getCheckInput("e-mail",true);	
+		String street1Input = getCheckInput("Address - street (line 1)",false);
+		String street2Input = getCheckInput("Address - street (line 2)",false);
 		String stateInput = getCheckInput("Address - state",false);
 		String countryInput = getCheckInput("Address - country",false);
 		String zipInput = getCheckInput("Address - zipcode",false);
 		String preferencesInput = getCheckInput("Preferred Generes",false);
 
-		//TODO actually create the account
+		if(dbLoaded){
+			dbUpdate(
+					"INSERT INTO users " +
+					"VALUES ('" + usernameInput + "','" + passwordInput + "','" + firstInput + "','" + middleInput + "','" + lastInput + "','" + emailInput + "','" + street1Input + "','" + street2Input + "','" + stateInput + "','" + countryInput + "','" + zipInput + "', 0)");
+		}
 		
 		System.out.println("\nAccount Created!");
 		System.out.println("Returning to the login page...");
@@ -469,6 +475,15 @@ public class Main {
 			System.out.println(e.toString());
 		}
 		return t;
+	}
+	
+	public static void dbUpdate(String update){
+		System.out.println("UPDATE: " + update);
+		try {
+			db.executeUpdate(update);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
 	}
 	
 	public static void testPrint(){
