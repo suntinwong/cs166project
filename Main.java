@@ -11,6 +11,7 @@ public class Main {
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
 	
+	
 	public static void main(String args[]) {
 		if(args.length == 4){
 			try {
@@ -377,6 +378,26 @@ public class Main {
 	}
 
 	public static void search_by(int searchType, String search){
+
+		//Search by title
+		if(searchType == 0){
+			System.out.printf("Enter title name: ");
+			String Input = getStringInput();
+		}
+		
+		//Search by directors
+		else if(searchType == 1){
+			System.out.printf("Enter title name: ");
+			String Input = getStringInput();
+
+		}
+
+		//LIST ALL titles
+		else if(searchType == 2){
+			System.out.printf("Enter title name: ");
+			String Input = getStringInput();
+
+		}
 
 	}
 
