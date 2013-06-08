@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -10,11 +11,10 @@ public class Main {
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
-	
+	static Boolean dbLoaded = false;
 	
 	public static void main(String args[]) {
 		if(args.length == 4){
-			EmbeddedSQL db = null;
 			try {
 				 // use postgres JDBC driver.
 		         Class.forName ("org.postgresql.Driver").newInstance ();
@@ -25,12 +25,16 @@ public class Main {
 		         String user = args[2];
 		         String passwd = args[3];
 		         db = new EmbeddedSQL (dbname, dbport, user, passwd);
+		         dbLoaded = true;
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}
-			testPrint();
 		}
 		System.out.println("Hello, Wolrd!");
+		
+		
+		printtest2();
+		
 		
 		//Keep promting until the system exits
 		while(true){
@@ -410,18 +414,61 @@ public class Main {
 
 	}
 
-
+	public static Table runQuery(String query){
+		Table t = null;
+		try {
+			t = db.executeQuery(query);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return t;
+	}
 	
 	public static void testPrint(){
 		Table t = null;
 		try {
-			t = db.executeQuery("SELECT * FROM video");
+			t = db.executeQuery("SELECT * FROM video;");
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
 		
 		System.out.println(t.toString());
 	}
-	
 
+	public static Boolean validateLogin(String userID, String password){
+		Table t = runQuery("SELECT COUNT(*) FROM users WHERE user_id = '" + userID + "' AND password = '" + password + "';");
+		ArrayList<String> a = t.getInfoFromColumn("count");
+		if(a.isEmpty()){return false;}
+		if(Integer.valueOf(a.get(0)) == 1){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public static void printtest2(){
+		if (dbLoaded){
+			System.out.println("PRINTING TESTS");
+			System.out.println(validateLogin("user1", "pass1"));
+			System.out.println(validateLogin("user2", "pass1"));
+			System.out.println(validateLogin("user2", "pass2"));
+			System.out.println("PRINTING TESTS");
+		}
+		else{
+			System.out.println("DB not loaded, no testing :(");
+		}
+	}
+	
+	public static void printtest3(){
+		if (dbLoaded){
+			Table t2 = runQuery("SELECT user_id FROM users;");
+			System.out.println(t2.toString());
+			Table t3 = runQuery("SELECT * FROM users WHERE user_id = 'user1' AND password = 'pass1';");
+			System.out.println(t3.toString());
+		}
+		else{
+			System.out.println("DB not loaded, no testing :(");
+		}
+	}
 }
