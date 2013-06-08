@@ -9,7 +9,7 @@ public class Main {
 	//This does nothing. Don't worry about it... testing comment 123
 	public Main() {}
 	
-	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS};
+	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH};
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
@@ -106,8 +106,9 @@ public class Main {
 			while (lockRepeat){
 				System.out.println("\n Please select what you would like to view:");
 				System.out.println("1.\tSEARCH MOVIES");
-				System.out.println("2.\tVIEW WALL");
-				System.out.println("3.\tSETTINGS");
+				System.out.println("2.\tSEARCH USERS");
+				System.out.println("3.\tVIEW WALL");
+				System.out.println("4.\tSETTINGS");
 				System.out.println("0.\tLOGOUT");
 				
 				int input = getIntInput();
@@ -120,11 +121,16 @@ public class Main {
 					break;
 					
 				case 2:
+					page = Page.USER_SEARCH;
+					lockRepeat = false;
+					break;
+
+				case 3:
 					page = Page.FOLLOWING;
 					lockRepeat = false;
 					break;
 					
-				case 3:
+				case 4:
 					page = Page.SETTINGS;
 					lockRepeat = false;
 					break;
@@ -198,6 +204,55 @@ public class Main {
 				
 			break;
 
+		//USER SEARCH PAGE
+		case USER_SEARCH:
+			clearConsole();
+			System.out.println("=USER SEARCH=-");
+			
+			lockRepeat = true;
+			while (lockRepeat){
+				System.out.println("\n Please select what you would like to view:");
+				System.out.println("1.\tSEARCH BY USERNAME");
+				System.out.println("2.\tSEARCH BY EMAIL");
+				System.out.println("3.\tLIST ALL MOVIE TITLES");
+				System.out.println("0.\tBACK TO MAIN MENU");
+				
+				int input = getIntInput();
+				
+				switch (input) {
+
+				case 0:
+					page = Page.MAIN_MENU;
+					lockRepeat = false;
+					break;
+
+				case 1:
+					page = Page.SEARCH_RESULTS;
+					search_by(3);
+					lockRepeat = false;
+					break;
+			
+				case 2:
+					page = Page.SEARCH_RESULTS;
+					search_by(4);
+					lockRepeat = false;
+					break;
+
+				case 3:
+					page = Page.SEARCH_RESULTS;
+					search_by(5);
+					lockRepeat = false;
+					break;
+
+				default:
+					System.out.println("Invalid input. Please try again.");
+					break;
+				}
+			}
+				
+				
+			break;
+
 		//Movie Search Results
 		case SEARCH_RESULTS:
 			clearConsole();
@@ -206,8 +261,8 @@ public class Main {
 			lockRepeat = true;
 			while (lockRepeat){
 
-				System.out.println("CHOOSE MOVIE TO VIEW.");
-				System.out.println("0.\tBACK TO MOIVE SEARCH OPTIONS");
+				System.out.println("CHOOSE Which TO VIEW.");
+				System.out.println("0.\tBACK TO MAIN MENU");
 				for(int i = 0; i < searchResults.size(); i++){
 					System.out.printf("%d.\t%s\n",i+1,searchResults.get(i));			
 				}
@@ -217,10 +272,10 @@ public class Main {
 
 				int input = getIntInput();
 				if (input == 0) {
-					page = Page.MOVIE_SEARCH;
+					page = Page.MAIN_MENU;
 					lockRepeat = false;
 				}
-				else if(input < searchResults.size() + 1){
+				else if(input -1 < searchResults.size()){
 					movieInfo = "";
 					//TODO: Don't use this. Work around it. Just get the video_id
 					//getmovieInfo(searchResults.get(input-1));
@@ -248,6 +303,8 @@ public class Main {
 				System.out.println("2.\tWATCH ONLINE");
 				System.out.println("3.\tVIEW COMMENTS");
 				System.out.println("4.\tWRITE A COMMENT");
+				System.out.println("5.\tRATE");
+				System.out.println("6.\tFAVORITE");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
 				
 				int input = getIntInput();
@@ -462,26 +519,32 @@ public class Main {
 	}
 
 	public static void search_by(int searchType){
-
 		searchResults.clear();
-
-		//Search by title
-		if(searchType == 0){
+		if(searchType == 0){ //Search by title
 			System.out.printf("Enter title name: ");
 			String Input = getStringInput();
 			sql_getTitle(Input);		
 		}
-		
-		//Search by directors
-		else if(searchType == 1){
+		else if(searchType == 1){ //Search by directors
 			System.out.printf("Enter director name: ");
 			String Input = getStringInput();
 			sql_getDirector(Input);
 		}
-
-		//LIST ALL titles
-		else if(searchType == 2){
+		else if(searchType == 2){ //LIST ALL titles
 			sql_getAllTitles();
+		}
+		else if(searchType == 3){ //Search by username
+			System.out.printf("Enter username: ");
+			String Input = getStringInput();
+			sql_getUsernames(Input);		
+		}
+		else if(searchType == 4){ //Search by email
+			System.out.printf("Enter Email: ");
+			String Input = getStringInput();
+			sql_getEmails(Input);
+		}
+		else if(searchType == 5){ //LIST ALL USERS
+			sql_getAllUsers();
 		}
 	}
 	
@@ -531,6 +594,43 @@ public class Main {
 		searchResults.add(s2);
 		searchResults.add(s3);
 	}
+
+
+	//TODO:: SQL QUERY TO RETURN users searched by username
+	public static void sql_getUsernames(String Input){
+
+		//put into array with format: [username], [email]
+		//example:
+		String s = "Suntinwong, chriswong030@gmail.com";
+		String s2 = "Joe shmuck, joeshmuck@aol.com";
+		searchResults.add(s);
+		searchResults.add(s2);
+	}
+
+	//TODO:: SQL QUERY TO RETURN users searched by email
+	public static void sql_getEmails(String Input){
+
+		//put into array with format: [username], [email]
+		//example:
+		String s = "Nuntinwong, azn.c.wong@hotmail.com";
+		String s2 = "Jane shmoo, janeshmoo@aol.com";
+		searchResults.add(s);
+		searchResults.add(s2);
+	}
+
+	//TODO:: SQL QUERY TO RETURN all users
+	public static void sql_getAllUsers(){
+
+		//put into array with format: [username], [email]
+		//example:
+		String s = "Joe shmuck, joeshmuck@aol.com";
+		String s2 = "Jane shmoo, janeshmoo@aol.com";
+		String s3 = "Suntinwong, chriswong030@gmail.com";
+		searchResults.add(s);
+		searchResults.add(s2);
+		searchResults.add(s3);
+	}
+
 	
 	public static void sql_getBalance(){
 		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
