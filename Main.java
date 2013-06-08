@@ -222,7 +222,8 @@ public class Main {
 				}
 				else if(input < searchResults.size() + 1){
 					movieInfo = "";
-					getmovieInfo(searchResults.get(input-1));
+					//TODO: Don't use this. Work around it. Just get the video_id
+					//getmovieInfo(searchResults.get(input-1));
 					page = Page.MOVIE_INFO;
 					lockRepeat = false;
 				}
@@ -483,12 +484,6 @@ public class Main {
 			sql_getAllTitles();
 		}
 	}
-
-	public static void getmovieInfo(String movie){
-		String moviename = movie.substring(0,movie.indexOf(","));
-		System.out.println("'"+ moviename+"'");
-		sql_getmovieInfo(moviename);
-	}
 	
 	public static String getTimeStamp(){
 		Date date = new Date( );
@@ -543,18 +538,37 @@ public class Main {
 		System.out.print("Current Balance: " + balance);
 	}
 	
+	//TODO: FINISH THESE
 	public static void sql_printMovieInfo(String video_id){
 		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
+		Table d = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
+		
 		String title = t.getInfoFromFirstTuple("title");
 		String year = t.getInfoFromFirstTuple("year");
+		String director = "director name";
+		String author = "author name";
+		String genre = "genre type";
+		String views = "# of views";
+		String avgRating = "avg rating";
+		String yourRating = "your rating";
+		String episodeNum = "episodeNumber"; //Can avoid if not tv series
+		String seasonNum = "seasonNumber"; //Can avoid if not tv series
+		
 		String online_price = t.getInfoFromFirstTuple("online_price");
 		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
 		
 		System.out.println("Title: " + title);
 		System.out.println("Year: " + year);
+		System.out.println("Director: " + director);
+		System.out.println("Author: " + author);
+		System.out.println("Genre: " + genre);
+		System.out.println("Views: " + views);
+		System.out.println("Avgerage Rating: " + avgRating);
+		System.out.println("Your Rating: " + yourRating);
 		System.out.println("Online Price: $" + online_price);
 		System.out.println("DVD Price: $" + dvd_price);
 		System.out.println("================================");
+		
 	}
 	
 	public static void sql_increaseBalance(){
@@ -567,36 +581,7 @@ public class Main {
 		System.out.print("New Balance: " + balance2);
 		dbUpdate("UPDATE users SET balance=" + balance2 + " WHERE user_id = '" + USERNAME + "'");
 	}
-
-	//TODO:: SQL QUERY TO GET MOVIE INFO OF SPECIFIC MOVIEss
-	public static void sql_getmovieInfo(String moviename){
-		
-		//Figure out if its a tv series
-		Boolean isSeries = false;		
-
-		//put into strings(s) with following format
-		//example:
-		String title = moviename;
-		String director = "director name";
-		String author = "author name";
-		String genre = "genre type";
-		String category = "category type";
-		String price = "$$price";
-		String views = "# of views";
-		String avgRating = "avg rating";
-		String yourRating = "your rating";
-		String episodeNum = "episodeNumber"; //Can avoid if not tv series
-		String seasonNum = "seasonNumber"; //Can avoid if not tv series
-
-
-		movieInfo += "Title:\t\t " + title + "\nDirector:\t " + director + "\nWritten By:\t " + author + "\nGenre:\t\t " + genre
-					+ "\nCategory:\t " + category + "\nPrice:\t\t " + price + "\nViews:\t\t " + views
-					+ "\nRating:\t\t " + avgRating + "\nYour Rating:\t " + yourRating;
-		if(isSeries){
-			movieInfo += "\nEpisode Number: " + episodeNum + "\nSeason Number: " + seasonNum;	
-		}
-	}
-
+	
 	public static Table runQuery(String query){
 		Table t = null;
 		try {
