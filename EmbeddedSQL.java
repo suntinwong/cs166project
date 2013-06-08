@@ -93,6 +93,8 @@ public class EmbeddedSQL {
 	 * @throws java.sql.SQLException when failed to execute the query
 	 */
 	public Table executeQuery (String query) throws SQLException {
+		//System.out.println("EXECUTING: " + query);
+		
 		// creates a statement object
 		Statement stmt = this._connection.createStatement ();
 
@@ -116,7 +118,9 @@ public class EmbeddedSQL {
 			if(outputHeader){
 				for(int i = 1; i <= numCol; i++){
 					columnNames.add(rsmd.getColumnName(i));
+					//System.out.print(rsmd.getColumnName(i) + "\t");
 				}
+				//System.out.println ();
 				table = new Table(columnNames);
 				outputHeader = false;
 			}
@@ -124,7 +128,9 @@ public class EmbeddedSQL {
 		    
 			for (int i=1; i<=numCol; ++i){
 				entry.add(rs.getString (i));
+				//System.out.print (rs.getString (i) + "\t");
 			}
+			//System.out.println ();
 			table.addEntry(entry);
 			++rowCount;
 		}//end while
