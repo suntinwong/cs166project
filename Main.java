@@ -311,6 +311,10 @@ public class Main {
 				
 				switch (input) {
 				
+				case 1:
+					sql_placeOrder(currMovie);
+					break;
+				
 				case 0:
 					page = Page.SEARCH_RESULTS;
 					lockRepeat = false;
@@ -392,7 +396,7 @@ public class Main {
 				switch (input) {
 
 				case 1:
-					sql_getBalance();
+					sql_printBalance();
 					break;
 					
 				case 2:
@@ -682,27 +686,174 @@ public class Main {
 	}
 
 	
-	public static void sql_getBalance(){
+	public static void sql_printBalance(){
 		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
 		String balance = t.getInfoFromColumn("balance").get(0);
-		System.out.print("Current Balance: " + balance);
+		System.out.println("Current Balance: " + balance);
+	}
+	
+	public static int sql_getBalance(){
+		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
+		String balance = t.getInfoFromColumn("balance").get(0);
+		return Integer.valueOf(balance).intValue();
+	}
+	
+	public static void sql_placeOrder(String video_id){
+		Table t = runQuery(
+				"SELECT * FROM video " +
+				"WHERE video_id =" + video_id);
+		
+		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
+		
+		Boolean lockRepeat = true;
+		while (lockRepeat){
+			System.out.println("This DVD costs $" + dvd_price + ". Are you sure you want to order it?");
+			sql_printBalance();
+			System.out.println("1.\tNo");
+			System.out.println("0.\tYes");
+			int input = getIntInput();
+			switch (input) {
+			case 1:
+				return;
+				
+			case 0:
+				lockRepeat = false;
+				break;
+				
+			default:
+				System.out.println("Invalid input. Please try again.");
+				break;
+			}
+		}
+		
+		Integer price = Integer.valueOf(dvd_price);
+		
+		if(price > sql_getBalance()){
+			System.out.println("Insufficient funds! Add more to your balance through Settings.");
+			return;
+		}
+		
+		sql_subtractFromBlance(price);
+		
+		dbUpdate("INSERT INTO orders " +
+				"VALUES ("+ video_id + ",'" + USERNAME + "')");
+		System.out.println("\nOrder Placed!\n");
 	}
 	
 	//TODO: FINISH THESE
 	public static void sql_printMovieInfo(String video_id){
-		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
-		Table d = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
+		Table t = runQuery(
+				"SELECT * FROM video " +
+				"WHERE video_id =" + video_id);
+		
+		Table d = runQuery(
+				"SELECT D.first_name, D.last_name " +
+				"FROM director D, directed D2, video V " +
+				"WHERE V.video_id =" + video_id + "AND V.video_id = D2.video_id AND D.director_id = D2.director_id");
+		
+		Table a2 = runQuery(
+				"SELECT A.first_name, A.last_name " +
+				"FROM author A, written W, video V " +
+				"WHERE V.video_id =" + video_id + "AND V.video_id = W.video_id AND A.author_id = W.author_id");
+		
+		Table a3 = runQuery(
+				"SELECT S.first_name, S.last_name " +
+				"FROM star S, played P, video V " +
+				"WHERE V.video_id =" + video_id + "AND V.video_id = P.video_id AND S.star_id = P.star_id");
+		
+		
+		Table r = runQuery(
+				"SELECT rating " +
+				"FROM rate " +
+				"WHERE user_id ='" + USERNAME + "' AND video_id =" + video_id);
+		
+		Table a = runQuery(
+				"SELECT AVG(rating) AS average " +
+				"FROM rate " +
+				"WHERE video_id =" + video_id);
+		
+		Table g = runQuery(
+				"SELECT G.genre_name AS genre " +
+				"FROM categorize C, genre G " +
+				"WHERE C.video_id =" + video_id + " AND C.genre_id = G.genre_id");
+		
+		Table s = runQuery(
+				"SELECT S.season_number, S2.title " +
+				"FROM season S, series S2, video V1 " +
+				"WHERE V1.video_id =" + video_id + " AND V1.season_id = S.season_id AND S2.series_id = S.series_id");
+		
 		
 		String title = t.getInfoFromFirstTuple("title");
 		String year = t.getInfoFromFirstTuple("year");
-		String director = "director name";
-		String author = "author name";
-		String genre = "genre type";
+		
+		//Get List of directors
+				String director = null;
+				if(d != null){
+					ArrayList<String> fname = d.getInfoFromColumn("first_name");
+					ArrayList<String> lname = d.getInfoFromColumn("last_name");
+					for (int i = 0; i < fname.size(); i++){
+						if (director == null){director = String.format(fname.get(i) + " " + lname.get(i));}
+						else{director = director + String.format(", " + fname.get(i) + " " + lname.get(i));}
+					}
+				}
+				if (director == null){director = "Unknown";}
+	
+		//Get List of authors
+		String author = null;
+		if(a2 != null){
+			ArrayList<String> fname2 = a2.getInfoFromColumn("first_name");
+			ArrayList<String> lname2 = a2.getInfoFromColumn("last_name");
+			for (int i = 0; i < fname2.size(); i++){
+				if (author == null){author = String.format(fname2.get(i) + " " + lname2.get(i));}
+				else{author = author + String.format(", " + fname2.get(i) + " " + lname2.get(i));}
+			}
+		}
+		if (author == null){author = "Unknown";}
+		
+		//Get List of authors
+		String actors = null;
+		if(a3 != null){
+			ArrayList<String> fname3 = a3.getInfoFromColumn("first_name");
+			ArrayList<String> lname3 = a3.getInfoFromColumn("last_name");
+			for (int i = 0; i < fname3.size(); i++){
+				if (actors == null){actors = String.format(fname3.get(i) + " " + lname3.get(i));}
+				else{actors = actors + String.format(", " + fname3.get(i) + " " + lname3.get(i));}
+			}
+		}
+		if (actors == null){actors = "Unknown";}
+		
+		//Get List of genres
+		String genre = null;
+		if(g != null){
+			ArrayList<String> genres = g.getInfoFromColumn("genre");
+			for (String string : genres) {
+				if (genre == null){genre = string;}
+				else{genre = genre + ", " + string;}
+			}
+		}
+		if (genre == null){genre = "Unclassified";}
+		
 		String views = "# of views";
-		String avgRating = "avg rating";
-		String yourRating = "your rating";
-		String episodeNum = "episodeNumber"; //Can avoid if not tv series
-		String seasonNum = "seasonNumber"; //Can avoid if not tv series
+		
+		//Get Average Rating
+		String avgRating = a.getInfoFromFirstTuple("average");
+		if (avgRating == null) {avgRating = "(Not Yet Rated By Anyone)";}
+		
+		//Get USERS Rating
+		String yourRating = "(You Have Not Yet Rated)";
+		if (r != null) {
+			yourRating = r.getInfoFromFirstTuple("rating");
+			if (yourRating == null) {yourRating = "(Not Yet Rated)";}
+		}
+		
+		String episodeNum = t.getInfoFromFirstTuple("episode");; //Can avoid if not tv series
+		
+		String seriesTitle = null;
+		String seasonNum = null;
+		if(s != null){
+			seriesTitle = s.getInfoFromFirstTuple("title");
+			seasonNum = s.getInfoFromFirstTuple("season_number"); //Can avoid if not tv series
+		}
 		
 		String online_price = t.getInfoFromFirstTuple("online_price");
 		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
@@ -711,7 +862,21 @@ public class Main {
 		System.out.println("Year: " + year);
 		System.out.println("Director: " + director);
 		System.out.println("Author: " + author);
+		System.out.println("Actors: " + actors);
 		System.out.println("Genre: " + genre);
+		
+		if (seriesTitle != null) {
+			System.out.println("Series Title: " + seriesTitle);
+		}
+		
+		if (seasonNum != null) {
+			System.out.println("Season Number: " + seasonNum);
+		}
+		
+		if (episodeNum != null) {
+			System.out.println("Episode Number: " + episodeNum);
+		}
+		
 		System.out.println("Views: " + views);
 		System.out.println("Avgerage Rating: " + avgRating);
 		System.out.println("Your Rating: " + yourRating);
@@ -730,6 +895,12 @@ public class Main {
 		String balance2 = bal.toString();
 		System.out.print("New Balance: " + balance2);
 		dbUpdate("UPDATE users SET balance=" + balance2 + " WHERE user_id = '" + USERNAME + "'");
+	}
+	
+	public static void sql_subtractFromBlance(int amount){
+		String newBalance = new Integer(sql_getBalance() - amount).toString();
+		dbUpdate("UPDATE users SET balance=" + newBalance + " WHERE user_id = '" + USERNAME + "'");
+		
 	}
 	
 	public static Table runQuery(String query){

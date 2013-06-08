@@ -29,6 +29,20 @@ public class Table {
 		}
 		return results;
 	}
+	
+	public String getInfoFromFirstTuple(String name){
+		if(this == null || names == null || tuples == null){return null;}
+		if(!names.contains(name)){
+			System.out.println("COLUMN " + name + "Not found");
+			return null;
+		}
+		int columnNum = names.indexOf(name);
+		
+		if(tuples.isEmpty()){return null;}
+		if(tuples.get(0).isEmpty()){return null;}
+		String results = tuples.get(0).get(columnNum);
+		return results;
+	}
 
 	@Override
 	public String toString() {
