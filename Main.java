@@ -327,6 +327,28 @@ public class Main {
 		case FOLLOWING:
 			clearConsole();
 			System.out.println("=FOLLOWING WALL=-");
+			sql_printMyWall();
+			lockRepeat = true;
+			while(lockRepeat){
+				System.out.println("0.\tBACK TO MAIN MENU");
+				System.out.println("1.\tEDIT PEOPLE I AM FOLLOWING");
+				int input = getIntInput();
+				switch (input) {
+					case 1:
+						page = Page.FOLLOWING_EDIT;
+						lockRepeat = false;
+						break;
+
+					case 0:
+						page = Page.MAIN_MENU;
+						lockRepeat = false;
+						break;
+
+					default:
+						System.out.println("Invalid input. Please try again.");
+						break;
+				}
+			}
 			break;
 			
 		//ADD/REMOVE THE ACCOUTN USER IS FOLLOWING	
@@ -629,6 +651,18 @@ public class Main {
 		searchResults.add(s);
 		searchResults.add(s2);
 		searchResults.add(s3);
+	}
+
+	//TODO:: SQL QUERY print My wall
+	public static void sql_printMyWall(){
+		//Format: [time]: [username] did [activity]
+		//example filler stuff
+		for(int i = 0; i < 10; i++){
+			String time = "time";
+			String username = "username";
+			String activity = "activity";
+			System.out.println(time + ": " + username + " did " + activity);
+		}
 	}
 
 	
