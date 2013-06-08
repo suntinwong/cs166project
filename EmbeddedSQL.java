@@ -146,6 +146,36 @@ public class EmbeddedSQL {
 		}//end try
 	}//end cleanup
 
+	public void logoutDB(){try{
+		if(this != null) {
+			System.out.print("Disconnecting from database...");
+			this.cleanup ();
+			System.out.println("Done\n\nBye !");
+		}//end if
+	}catch (Exception e) {
+		// ignored.
+	}//end try
+	}
+	
+	public static EmbeddedSQL logintoDB(String pDBname, String pDBport, String pUser, String pPassword){
+		EmbeddedSQL esql = null;
+		try{
+			// use postgres JDBC driver.
+			Class.forName ("org.posStgresql.Driver").newInstance ();
+			// instantiate the EmbeddedSQL object and creates a physical
+			// connection.
+			String dbname = pDBname;
+			String dbport = pDBport;
+			String user = pUser;
+			String passwd = pPassword;
+			esql = new EmbeddedSQL (dbname, dbport, user, passwd);
+		}catch(Exception e) {
+			System.err.println (e.getMessage ());
+		}
+		return esql;
+	}//end try
+	
+	
 	/**
 	 * The main execution method
 	 *
