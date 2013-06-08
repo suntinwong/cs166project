@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -29,120 +30,128 @@ import java.io.InputStreamReader;
  */
 public class EmbeddedSQL {
 
-   // reference to physical database connection.
-   private Connection _connection = null;
+	// reference to physical database connection.
+	private Connection _connection = null;
 
-   // handling the keyboard inputs through a BufferedReader
-   // This variable can be global for convenience.
-   static BufferedReader in = new BufferedReader(
-                                new InputStreamReader(System.in));
+	// handling the keyboard inputs through a BufferedReader
+	// This variable can be global for convenience.
+	static BufferedReader in = new BufferedReader(
+			new InputStreamReader(System.in));
 
-   /**
-    * Creates a new instance of EmbeddedSQL
-    *
-    * @param hostname the MySQL or PostgreSQL server hostname
-    * @param database the name of the database
-    * @param username the user name used to login to the database
-    * @param password the user login password
-    * @throws java.sql.SQLException when failed to make a connection.
-    */
-   public EmbeddedSQL (String dbname, String dbport, String user, String passwd) throws SQLException {
+	/**
+	 * Creates a new instance of EmbeddedSQL
+	 *
+	 * @param hostname the MySQL or PostgreSQL server hostname
+	 * @param database the name of the database
+	 * @param username the user name used to login to the database
+	 * @param password the user login password
+	 * @throws java.sql.SQLException when failed to make a connection.
+	 */
+	public EmbeddedSQL (String dbname, String dbport, String user, String passwd) throws SQLException {
 
-      System.out.print("Connecting to database...");
-      try{
-         // constructs the connection URL
-         String url = "jdbc:postgresql://localhost:" + dbport + "/" + dbname;
-         System.out.println ("Connection URL: " + url + "\n");
+		System.out.print("Connecting to database...");
+		try{
+			// constructs the connection URL
+			String url = "jdbc:postgresql://localhost:" + dbport + "/" + dbname;
+			System.out.println ("Connection URL: " + url + "\n");
 
-         // obtain a physical connection
-         this._connection = DriverManager.getConnection(url, user, passwd);
-         System.out.println("Done");
-      }catch (Exception e){
-         System.err.println("Error - Unable to Connect to Database: " + e.getMessage() );
-         System.out.println("Make sure you started postgres on this machine");
-         System.exit(-1);
-      }//end catch
-   }//end EmbeddedSQL
+			// obtain a physical connection
+			this._connection = DriverManager.getConnection(url, user, passwd);
+			System.out.println("Done");
+		}catch (Exception e){
+			System.err.println("Error - Unable to Connect to Database: " + e.getMessage() );
+			System.out.println("Make sure you started postgres on this machine");
+			System.exit(-1);
+		}//end catch
+	}//end EmbeddedSQL
 
-   /**
-    * Method to execute an update SQL statement.  Update SQL instructions
-    * includes CREATE, INSERT, UPDATE, DELETE, and DROP.
-    *
-    * @param sql the input SQL string
-    * @throws java.sql.SQLException when update failed
-    */
-   public void executeUpdate (String sql) throws SQLException {
-      // creates a statement object
-      Statement stmt = this._connection.createStatement ();
+	/**
+	 * Method to execute an update SQL statement.  Update SQL instructions
+	 * includes CREATE, INSERT, UPDATE, DELETE, and DROP.
+	 *
+	 * @param sql the input SQL string
+	 * @throws java.sql.SQLException when update failed
+	 */
+	public void executeUpdate (String sql) throws SQLException {
+		// creates a statement object
+		Statement stmt = this._connection.createStatement ();
 
-      // issues the update instruction
-      stmt.executeUpdate (sql);
+		// issues the update instruction
+		stmt.executeUpdate (sql);
 
-      // close the instruction
-      stmt.close ();
-   }//end executeUpdate
+		// close the instruction
+		stmt.close ();
+	}//end executeUpdate
 
-   /**
-    * Method to execute an input query SQL instruction (i.e. SELECT).  This
-    * method issues the query to the DBMS and outputs the results to
-    * standard out.
-    *
-    * @param query the input query string
-    * @return the number of rows returned
-    * @throws java.sql.SQLException when failed to execute the query
-    */
-   public int executeQuery (String query) throws SQLException {
-      // creates a statement object
-      Statement stmt = this._connection.createStatement ();
+	/**
+	 * Method to execute an input query SQL instruction (i.e. SELECT).  This
+	 * method issues the query to the DBMS and outputs the results to
+	 * standard out.
+	 *
+	 * @param query the input query string
+	 * @return the number of rows returned
+	 * @throws java.sql.SQLException when failed to execute the query
+	 */
+	public Table executeQuery (String query) throws SQLException {
+		// creates a statement object
+		Statement stmt = this._connection.createStatement ();
 
-      // issues the query instruction
-      ResultSet rs = stmt.executeQuery (query);
+		// issues the query instruction
+		ResultSet rs = stmt.executeQuery (query);
 
-      /*
-       ** obtains the metadata object for the returned result set.  The metadata
-       ** contains row and column info.
-       */
-      ResultSetMetaData rsmd = rs.getMetaData ();
-      int numCol = rsmd.getColumnCount ();
-      int rowCount = 0;
+		/*
+		 ** obtains the metadata object for the returned result set.  The metadata
+		 ** contains row and column info.
+		 */
+		ResultSetMetaData rsmd = rs.getMetaData ();
+		int numCol = rsmd.getColumnCount ();
+		int rowCount = 0;
 
-      // iterates through the result set and output them to standard out.
-      boolean outputHeader = true;
-      while (rs.next()){
-	 if(outputHeader){
-	    for(int i = 1; i <= numCol; i++){
-		System.out.print(rsmd.getColumnName(i) + "\t");
-	    }
-	    System.out.println();
-	    outputHeader = false;
-	 }
-         for (int i=1; i<=numCol; ++i)
-            System.out.print (rs.getString (i) + "\t");
-         System.out.println ();
-         ++rowCount;
-      }//end while
-      stmt.close ();
-      return rowCount;
-   }//end executeQuery
+		ArrayList<String> columnNames = new ArrayList<String>();
+		Table table = null;
 
-   /**
-    * Method to close the physical connection if it is open.
-    */
-   public void cleanup(){
-      try{
-         if (this._connection != null){
-            this._connection.close ();
-         }//end if
-      }catch (SQLException e){
-         // ignored.
-      }//end try
-   }//end cleanup
+		// iterates through the result set and output them to standard out.
+		boolean outputHeader = true;
+		while (rs.next()){
+			if(outputHeader){
+				for(int i = 1; i <= numCol; i++){
+					columnNames.add(rsmd.getColumnName(i));
+				}
+				table = new Table(columnNames);
+				outputHeader = false;
+			}
+			ArrayList<String> entry = new ArrayList<String>();
+		    
+			for (int i=1; i<=numCol; ++i){
+				entry.add(rs.getString (i));
+			}
+			table.addEntry(entry);
+			++rowCount;
+		}//end while
+		
+		stmt.close ();
+		return table;
+	}//end executeQuery
 
-   /**
-    * The main execution method
-    *
-    * @param args the command line arguments this inclues the <mysql|pgsql> <login file>
-    */
+	/**
+	 * Method to close the physical connection if it is open.
+	 */
+	public void cleanup(){
+		try{
+			if (this._connection != null){
+				this._connection.close ();
+			}//end if
+		}catch (SQLException e){
+			// ignored.
+		}//end try
+	}//end cleanup
+
+	/**
+	 * The main execution method
+	 *
+	 * @param args the command line arguments this inclues the <mysql|pgsql> <login file>
+	 */
+	/*
    public static void main (String[] args) {
       if (args.length != 4) {
          System.err.println (
@@ -152,8 +161,7 @@ public class EmbeddedSQL {
             " <dbname> <port> <user> <passwd>");
          return;
       }//end if
-      
-      Greeting();
+
       EmbeddedSQL esql = null;
       try{
          // use postgres JDBC driver.
@@ -207,82 +215,77 @@ public class EmbeddedSQL {
          }//end try
       }//end try
    }//end main
-   
-   public static void Greeting(){
-      System.out.println(
-         "\n\n*******************************************************\n" +
-         "              User Interface      	               \n" +
-         "*******************************************************\n");
-   }//end Greeting
 
-   /*
-    * Reads the users choice given from the keyboard
-    * @int
-    **/
-   public static int readChoice() {
-      int input;
-      // returns only if a correct value is given.
-      do {
-         System.out.print("Please make your choice: ");
-         try { // read the integer, parse it and break.
-            input = Integer.parseInt(in.readLine());
-            break;
-         }catch (Exception e) {
-            System.out.println("Your input is invalid!");
-            continue;
-         }//end try
-      }while (true);
-      return input;
-   }//end readChoice
+	 */
 
-   public static void QueryExample(EmbeddedSQL esql){
-      try{
-         String query = "SELECT * FROM Catalog WHERE cost < ";
-         System.out.print("\tEnter cost: $");
-         String input = in.readLine();
-         query += input;
+	/*
+	 * Reads the users choice given from the keyboard
+	 * @int
+	 **/
+	public static int readChoice() {
+		int input;
+		// returns only if a correct value is given.
+		do {
+			System.out.print("Please make your choice: ");
+			try { // read the integer, parse it and break.
+				input = Integer.parseInt(in.readLine());
+				break;
+			}catch (Exception e) {
+				System.out.println("Your input is invalid!");
+				continue;
+			}//end try
+		}while (true);
+		return input;
+	}//end readChoice
 
-         int rowCount = esql.executeQuery (query);
-         System.out.println ("total row(s): " + rowCount);
-      }catch(Exception e){
-         System.err.println (e.getMessage ());
-      }
-   }//end QueryExample
-   
-   public static void Query1(EmbeddedSQL esql){
-      // Your code goes here.
-      // ...
-      // ...
-   }//end Query1
+	public static void QueryExample(EmbeddedSQL esql){
+		try{
+			String query = "SELECT * FROM Catalog WHERE cost < ";
+			System.out.print("\tEnter cost: $");
+			String input = in.readLine();
+			query += input;
 
-   public static void Query2(EmbeddedSQL esql){
-      // Your code goes here.
-      // ...
-      // ...
-   }//end Query2
+			//int rowCount = esql.executeQuery (query);
+			//System.out.println ("total row(s): " + rowCount);
+		}catch(Exception e){
+			System.err.println (e.getMessage ());
+		}
+	}//end QueryExample
 
-   public static void Query3(EmbeddedSQL esql){
-      // Your code goes here.
-      // ...
-      // ...
-   }//end Query3
+	public static void Query1(EmbeddedSQL esql){
+		// Your code goes here.
+		// ...
+		// ...
+	}//end Query1
 
-   public static void Query4(EmbeddedSQL esql){
-      // Your code goes here.
-      // ...
-      // ...
-   }//end Query4
+	public static void Query2(EmbeddedSQL esql){
+		// Your code goes here.
+		// ...
+		// ...
+	}//end Query2
 
-   public static void Query5(EmbeddedSQL esql){
-      // Your code goes here.
-      // ...
-      // ...
-   }//end Query5
+	public static void Query3(EmbeddedSQL esql){
+		// Your code goes here.
+		// ...
+		// ...
+	}//end Query3
 
-   public static void Query6(EmbeddedSQL esql){
-      // Your code goes here.
-      // ...
-      // ...
-   }//end Query6
+	public static void Query4(EmbeddedSQL esql){
+		// Your code goes here.
+		// ...
+		// ...
+	}//end Query4
+
+	public static void Query5(EmbeddedSQL esql){
+		// Your code goes here.
+		// ...
+		// ...
+	}//end Query5
+
+	public static void Query6(EmbeddedSQL esql){
+		// Your code goes here.
+		// ...
+		// ...
+	}//end Query6
 
 }//end EmbeddedSQL
