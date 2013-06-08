@@ -1,3 +1,7 @@
+//Tables are arrays of arrays of strings. 
+//each inner array is a tuple. so it is a list of tuples
+//These are returned by queries
+
 import java.util.ArrayList;
 
 public class Table {
@@ -14,6 +18,10 @@ public class Table {
 	}
 	
 	public ArrayList<String> getInfoFromColumn(String name){
+		if(!names.contains(name)){
+			System.out.println("COLUMN " + name + "Not found");
+			return null;
+		}
 		int columnNum = names.indexOf(name);
 		ArrayList<String> results = new ArrayList<String>();
 		for (ArrayList<String> tuple : tuples) {
