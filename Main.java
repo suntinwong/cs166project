@@ -9,8 +9,17 @@ public class Main {
 	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS};
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
+	static EmbeddedSQL db = null;
 	
 	public static void main(String args[]) {
+		if(args.length == 4){
+			try {
+				db = new EmbeddedSQL(args[0], args[1], args[2], args[3]);
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+			}
+			testPrint();
+		}
 		System.out.println("Hello, Wolrd!");
 		
 		//Keep promting until the system exits
@@ -370,5 +379,19 @@ public class Main {
 	public static void search_by(int searchType, String search){
 
 	}
+
+
+	
+	public static void testPrint(){
+		Table t = null;
+		try {
+			t = db.executeQuery("SELECT * FROM video");
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		System.out.println(t);
+	}
+	
 
 }
