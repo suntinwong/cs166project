@@ -320,6 +320,7 @@ public class Main {
 					break;
 
 				case 3:
+					//sql_printMovieComments();
 					break;
 
 				case 4:
@@ -353,8 +354,8 @@ public class Main {
 			sql_printMyWall();
 			lockRepeat = true;
 			while(lockRepeat){
-				System.out.println("0.\tBACK TO MAIN MENU");
 				System.out.println("1.\tEDIT PEOPLE I AM FOLLOWING");
+				System.out.println("0.\tBACK TO MAIN MENU");
 				int input = getIntInput();
 				switch (input) {
 					case 1:
