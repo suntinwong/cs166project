@@ -388,7 +388,7 @@ public class Main {
 				System.out.println("0.\tBACK TO MY WALL");
 				int input = getIntInput();
 
-				if(Input == "0"){
+				if(input == 0){
 					page = Page.FOLLOWING;
 					lockRepeat = false;
 				}
