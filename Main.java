@@ -172,6 +172,7 @@ public class Main {
 				//TODO: Get rid of this in final version
 				case 99:
 					currMovie = getFirstMovie();
+					currIsMovie = true;
 					page = Page.MOVIE_INFO;
 					lockRepeat = false;
 					break;
@@ -596,7 +597,7 @@ public class Main {
       catch (Exception e)
       {
          System.out.println("Couldn't parse input, please try again");
-			return 0;
+			return -1;
       }
 	}
 	
@@ -609,7 +610,7 @@ public class Main {
       catch (Exception e)
       {
          System.out.println("Couldn't parse input, please try again");
-			return 0f;
+			return -1f;
       }
 	}
 
@@ -628,29 +629,28 @@ public class Main {
 		String returnval = "";
 
 		while(!valid){
-			System.out.printf("%s: ",s);
+			if(required) {System.out.printf("%s (required): ",s);}
+			else {System.out.printf("%s: ",s);}
 			String Input = getStringInput();
 
 			//When speical case passwords
 			String Input2 = "";
 			if(s.equals("PASSWORD")){
-				System.out.printf("CONFIRM PASSWORD: ");
+				System.out.printf("CONFIRM PASSWORD (required): ");
 				Input2 = getStringInput();
 			}
 
-			//TODO: Check if it is NOT already in database
-			Boolean inDatabase = false;
-			if(s.equals("USERNAME")){} //speical case for username
-
 			//Check to see if its a valid input
-			if(s.equals("PASSWORD") && !Input.equals(Input2))
+			if(s.equals("USERNAME") && sql_usernameExists(Input))
+				{System.out.printf("Invalid, username already exsits");}
+			else if(s.equals("PASSWORD") && !Input.equals(Input2))
 				{System.out.println("Passwords to not match. Try again.");}
-			else if( (!Input.equals("") || !required) && Input.length() < 20 && !inDatabase)
-				{returnval = Input; valid = true;}
-			else if(Input.length() >= 20)
+			else if( (Input.equals("") && required))
+				{System.out.printf("Invalid %s. Must input something.\n",s);}
+			else if(Input.length() > 40 || (s.equals("USERNAME") && Input.length() > 9) ||  (s.equals("PASSWORD") && Input.length() > 36) )
 				{System.out.printf("Invalid %s, too long. Try Again.\n",s);}
 			else 
-				{System.out.printf("Invalid %s. Try Again.\n",s);}
+				{returnval = Input; valid = true;}
 		}
 		return returnval;
 	}
@@ -845,6 +845,12 @@ public class Main {
 	//TODO:: SQL QUERY favorite current movie
 	public static void sql_favoriteMovie(){
 
+	}
+
+	//TODO:: SQL QUERY if username exsits in database
+	public static Boolean sql_usernameExists(String s){
+
+		return false; //return false if it doesnt exist
 	}
 
 	
