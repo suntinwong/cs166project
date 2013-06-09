@@ -217,7 +217,7 @@ public class Main {
 				System.out.println("\n Please select what you would like to view:");
 				System.out.println("1.\tSEARCH BY USERNAME");
 				System.out.println("2.\tSEARCH BY EMAIL");
-				System.out.println("3.\tLIST ALL MOVIE TITLES");
+				System.out.println("3.\tLIST ALL USERS");
 				System.out.println("0.\tBACK TO MAIN MENU");
 				
 				int input = getIntInput();
@@ -320,6 +320,7 @@ public class Main {
 
 				case 2:
 					page = Page.WATCH_ONLINE;
+					lockRepeat = false;
 					break;
 
 				case 3:
@@ -336,6 +337,7 @@ public class Main {
 
 				case 6:
 					favoriteMovie();
+					break;
 					
 				case 0:
 					page = Page.SEARCH_RESULTS;
@@ -478,9 +480,9 @@ public class Main {
 	//If the pair is in database, change USERNAME global variable to userID and
 	//go to the main menu
 	public static void logIn(){
-		System.out.println("USERNAME:");
+		System.out.printf("USERNAME: ");
 		String usernameInput = getStringInput();
-		System.out.println("PASSWORD:");
+		System.out.printf("PASSWORD: ");
 		String passwordInput = getStringInput();
 
 		//Validate log in
@@ -488,11 +490,13 @@ public class Main {
 		if (!dbLoaded || validateLogin(usernameInput, passwordInput)) {
 			USERNAME = usernameInput;
 			page = Page.MAIN_MENU;
+			System.out.println("\nLogin in SUCCESS!");
 		}
 		else{
-			System.out.println("Invalid Login information!");
+			System.out.println("\nInvalid Login information!");
 		}
-		
+		System.out.println("Press any Key to Continue");
+		getStringInput();
 	}
 	
 	public static void logOut(){
@@ -652,14 +656,16 @@ public class Main {
 	}
 
 	public static void rateMovie(){
-		System.out.printf("Give a rating between 0 - 100");
+		System.out.printf("Give a rating between 0 - 100: ");
 		int Input = getIntInput();
 		if(Input < 0 || Input > 100){
-			System.out.println("Invalid Rating.");
+			System.out.println("\nInvalid Rating.");
 		}
 		else{
 			System.out.println("Rating Saved!");
 			sql_rateMovie(Input);
+			System.out.println("\nPress any Key to Continue");
+			getStringInput();
 		}
 	}
 
@@ -668,7 +674,13 @@ public class Main {
 		String Input = getStringInput();
 		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
 			sql_favoriteMovie();
+			System.out.println("\nMovie Favorited");
 		}
+		else{System.out.println("\nCancled");}
+
+		System.out.println("Press any Key to Continue");
+		getStringInput();
+	
 	}
 
 	//////////////////////////////////////////////
@@ -802,6 +814,9 @@ public class Main {
 				"INSERT INTO comment " +
 				"VALUES (DEFAULT,'" + USERNAME + "'," + video_id + ",NOW(),'" + comment + "')");
 		System.out.println("You have succesfully Commented on this movie!");
+		System.out.println("Press any key to continue");
+		getStringInput();
+		
 	}
 	
 	public static void sql_printComments(String video_id){
