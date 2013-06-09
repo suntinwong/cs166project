@@ -13,6 +13,10 @@ public class Table {
 		tuples = new ArrayList<ArrayList<String>>();
 	}
 	
+	public ArrayList<ArrayList<String>> getTuples(){
+		return tuples;
+	}
+	
 	public void addEntry(ArrayList<String> newEntry){
 		tuples.add(newEntry);
 	}
