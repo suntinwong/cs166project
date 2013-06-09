@@ -1,5 +1,8 @@
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -100,7 +103,7 @@ public class Main {
 		//MAIN MENU
 		case MAIN_MENU:
 			clearConsole();
-			System.out.println("=MAIN MENU=-");
+			System.out.println("-=MAIN MENU=-");
 			
 			lockRepeat = true;
 			while (lockRepeat){
@@ -150,7 +153,7 @@ public class Main {
 		//MOVE SEARCH PAGE
 		case MOVIE_SEARCH:
 			clearConsole();
-			System.out.println("=MOVIE SEARCH=-");
+			System.out.println("-=MOVIE SEARCH=-");
 			
 			lockRepeat = true;
 			while (lockRepeat){
@@ -324,7 +327,7 @@ public class Main {
 					break;
 
 				case 4:
-					writeComment();
+					sql_createComment(currMovie);
 					break;
 
 				case 5:
@@ -333,8 +336,7 @@ public class Main {
 
 				case 6:
 					favoriteMovie();
-					break;
-				
+					
 				case 0:
 					page = Page.SEARCH_RESULTS;
 					lockRepeat = false;
@@ -401,6 +403,8 @@ public class Main {
 		case WATCH_ONLINE:
 			clearConsole();
 			System.out.println("-=WATCHING ONLINE=-");
+			printMovie();
+			System.out.println();
 			lockRepeat = true;
 			while(lockRepeat){
 				System.out.println("0.\tBACK");
@@ -631,10 +635,9 @@ public class Main {
 		}
 	}
 	
-	public static String getTimeStamp(){
-		Date date = new Date( );
-		SimpleDateFormat ft = new SimpleDateFormat ("yyyy.MM.dd hh:mm:ss a");
-		return String.format(ft.format(date));
+	public static Timestamp getTimeStamp(){
+		return new Timestamp(Calendar.getInstance().getTime().getTime());
+
 	}
 
 	public static void writeComment(){
@@ -787,6 +790,35 @@ public class Main {
 		System.out.println("Current Balance: " + balance);
 	}
 	
+	public static void sql_createComment(String video_id){
+		System.out.println("Please type your comment (max 300 char):\n");
+		String comment = getStringInput();
+		
+		while(comment.length() >= 300){
+			System.out.println("Comment is too long Please try again:\n");
+			comment = getStringInput();
+		}
+		
+		dbUpdate(
+				"INSERT INTO comment " +
+				"VALUES (DEFAULT,'" + USERNAME + "'," + video_id + ",NOW(),'" + comment + "')");
+		System.out.println("You have succesfully Commented on this movie!");
+	}
+	
+	public static void sql_printComments(String video_id){
+		Table t = runQuery(
+				"SELECT user_id, comment_time, content " +
+				"FROM comment " +
+				"WHERE video_id = " + video_id + " " +
+				"ORDER BY comment_time");
+		System.out.println("\nComments");
+		System.out.println("-------------------------------");
+		for (ArrayList<String> i : t.getTuples()) {
+			System.out.println(i.get(0) + "\t" + i.get(1) + "\n" + i.get(2));
+			System.out.println("\n-------------------------------\n");
+		}
+	}
+	
 	public static int sql_getBalance(){
 		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
 		String balance = t.getInfoFromColumn("balance").get(0);
@@ -831,7 +863,7 @@ public class Main {
 		sql_subtractFromBlance(price);
 		
 		dbUpdate("INSERT INTO orders " +
-				"VALUES ("+ video_id + ",'" + USERNAME + "')");
+				"VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "')");
 		System.out.println("\nOrder Placed!\n");
 	}
 	
@@ -1070,5 +1102,14 @@ public class Main {
 		String id = t.getInfoFromColumn("video_id").get(0);
 		System.out.print("Obtained: " + id);
 		return id;
+	}
+	
+	public static void printMovie(){
+		System.out.println("@@@@@@@@@@@@@@@@");
+		System.out.println("@      \\    /\\");
+		System.out.println("@       )  ( ')");
+		System.out.println("@      (  /  )");
+		System.out.println("@ jgs   \\(__)|");
+		System.out.println("@@@@@@@@@@@@@@@@");
 	}
 }
