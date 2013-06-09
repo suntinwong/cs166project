@@ -387,15 +387,14 @@ public class Main {
 				System.out.println("Select whom to stop following");
 				System.out.println("0.\tBACK TO MY WALL");
 				int input = getIntInput();
-				switch (input) {
-					case 0:
-						page = Page.FOLLOWING;
-						lockRepeat = false;
-						break;
 
-					default:
-						System.out.println("Invalid input. Please try again.");
-						break;
+				if(Input == 0){
+					page = Page.FOLLOWING;
+					lockRepeat = false;
+				}
+
+				else{
+					System.out.println("Invalid input. Please try again.");
 				}
 			}
 			break;
