@@ -12,12 +12,13 @@ public class Main {
 	//This does nothing. Don't worry about it... testing comment 123
 	public Main() {}
 	
-	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH,WATCH_ONLINE};
+	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH,WATCH_ONLINE,USER_INFO};
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
 	static Boolean dbLoaded = false;
 	static String currMovie = null;
+	static Boolean currIsMovie = false;
 	
 	static ArrayList<String> searchResults = new ArrayList<String>();
 	static String movieInfo = "";
@@ -263,7 +264,7 @@ public class Main {
 
 			lockRepeat = true;
 			while (lockRepeat){
-
+				System.out.println("=========================================\n");
 				System.out.println("CHOOSE Which TO VIEW.");
 				System.out.println("0.\tBACK TO MAIN MENU");
 				for(int i = 0; i < searchResults.size(); i++){
@@ -282,7 +283,9 @@ public class Main {
 					movieInfo = "";
 					//TODO: Don't use this. Work around it. Just get the video_id
 					//getmovieInfo(searchResults.get(input-1));
-					page = Page.MOVIE_INFO;
+					if(currIsMovie){page = Page.MOVIE_INFO;}
+					else {page = Page.USER_INFO;}
+					
 					lockRepeat = false;
 				}
 				else{
@@ -350,6 +353,27 @@ public class Main {
 				}
 			}
 			break;
+
+		//Searched user's info
+		case USER_INFO:
+			clearConsole();
+			System.out.println("=SEARCHED USER's INFO=");
+			while(lockRepeat){
+				System.out.println("0.\tBACK TO SEARCH RESULTS");
+				int input = getIntInput();
+				switch (input) {
+					case 0:
+						page = Page.SEARCH_RESULTS;
+						lockRepeat = false;
+						break;
+
+					default:
+						System.out.println("Invalid input. Please try again.");
+						break;
+				}
+			}
+
+		break;
 		
 		//USER'S FOLLOWING WALL OF INFO
 		case FOLLOWING:
@@ -425,11 +449,12 @@ public class Main {
 			
 		//USER'S SETTINGS
 		case SETTINGS:
-			clearConsole();
+			
 			System.out.println("-=SETTINGS=-");
 			
 			lockRepeat = true;
 			while (lockRepeat){
+				clearConsole();
 				System.out.println("\n Please select the setting you would like to change:");
 				System.out.println("1.\tCHECK BALANCE");
 				System.out.println("2.\tINCREASE BALANCE");
@@ -443,18 +468,26 @@ public class Main {
 
 				case 1:
 					sql_printBalance();
+					System.out.println("Press any Key to Continue");
+					getStringInput();
 					break;
 					
 				case 2:
 					sql_increaseBalance();
+					System.out.println("Press any Key to Continue");
+					getStringInput();
 					break;
 					
 				case 3:
 					System.out.println("Privacy Features aren't implemented in the SQL...");
+					System.out.println("Press any Key to Continue");
+					getStringInput();
 					break;
 					
 				case 4:
 					System.out.println("Privacy Features aren't implemented in the SQL...");
+					System.out.println("Press any Key to Continue");
+					getStringInput();
 					break;
 					
 				case 0:
@@ -553,17 +586,31 @@ public class Main {
 	}
 	
 	public static int getIntInput(){
+		
 		Scanner in = new Scanner(System.in);
-		int result = in.nextInt();
-		//in.close();
-		return result;
+
+		try {
+         int result = in.nextInt();
+			return result;
+      }
+      catch (Exception e)
+      {
+         System.out.println("Couldn't parse input, please try again");
+			return 0;
+      }
 	}
 	
 	public static float getFloatInput(){
 		Scanner in = new Scanner(System.in);
-		float result = in.nextFloat();
-		//in.close();
-		return result;
+		try {
+         float result = in.nextInt();
+			return result;
+      }
+      catch (Exception e)
+      {
+         System.out.println("Couldn't parse input, please try again");
+			return 0f;
+      }
 	}
 
 	public static void clearConsole(){
@@ -613,28 +660,34 @@ public class Main {
 		if(searchType == 0){ //Search by title
 			System.out.printf("Enter title name: ");
 			String Input = getStringInput();
-			sql_getTitle(Input);		
+			sql_getTitle(Input);
+			currIsMovie = true;		
 		}
 		else if(searchType == 1){ //Search by directors
 			System.out.printf("Enter director name: ");
 			String Input = getStringInput();
 			sql_getDirector(Input);
+			currIsMovie = true;	
 		}
 		else if(searchType == 2){ //LIST ALL titles
 			sql_getAllTitles();
+			currIsMovie = true;	
 		}
 		else if(searchType == 3){ //Search by username
 			System.out.printf("Enter username: ");
 			String Input = getStringInput();
-			sql_getUsernames(Input);		
+			sql_getUsernames(Input);
+			currIsMovie = false;		
 		}
 		else if(searchType == 4){ //Search by email
 			System.out.printf("Enter Email: ");
 			String Input = getStringInput();
 			sql_getEmails(Input);
+			currIsMovie = false;
 		}
 		else if(searchType == 5){ //LIST ALL USERS
 			sql_getAllUsers();
+			currIsMovie = false;
 		}
 	}
 	
@@ -670,7 +723,7 @@ public class Main {
 	}
 
 	public static void favoriteMovie(){
-		System.out.printf("Are you sure? (y/n)");
+		System.out.printf("Favorite? Are you sure? (y/n)");
 		String Input = getStringInput();
 		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
 			sql_favoriteMovie();
