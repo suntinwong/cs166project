@@ -9,7 +9,7 @@ public class Main {
 	//This does nothing. Don't worry about it... testing comment 123
 	public Main() {}
 	
-	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH};
+	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH,WATCH_ONLINE};
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
@@ -314,6 +314,25 @@ public class Main {
 				case 1:
 					sql_placeOrder(currMovie);
 					break;
+
+				case 2:
+					page = Page.WATCH_ONLINE;
+					break;
+
+				case 3:
+					break;
+
+				case 4:
+					writeComment();
+					break;
+
+				case 5:
+					rateMovie();
+					break;
+
+				case 6:
+					favoriteMovie();
+					break;
 				
 				case 0:
 					page = Page.SEARCH_RESULTS;
@@ -360,6 +379,7 @@ public class Main {
 			clearConsole();
 			System.out.println("=EDIT PEOPLE I AM FOLLOWING=-");
 			lockRepeat = true;
+			sql_printFollowing();
 			while(lockRepeat){
 				System.out.println("Select whom to stop following");
 				System.out.println("0.\tBACK TO MY WALL");
@@ -376,6 +396,26 @@ public class Main {
 				}
 			}
 			break;
+
+		case WATCH_ONLINE:
+			clearConsole();
+			System.out.println("-=WATCHING ONLINE=-");
+			lockRepeat = true;
+			while(lockRepeat){
+				System.out.println("0.\tBACK");
+				int input = getIntInput();
+				switch(input){
+					case 0:
+						page = Page.MOVIE_INFO;
+						lockRepeat = false;
+						break;
+					default:
+						System.out.println("Invalid input. Please try again.");
+						break;
+				}
+			}
+
+		break;
 			
 		//USER'S SETTINGS
 		case SETTINGS:
@@ -596,6 +636,38 @@ public class Main {
 		return String.format(ft.format(date));
 	}
 
+	public static void writeComment(){
+		System.out.printf("Wirte Comment:");
+		String Input = getStringInput();
+		if(Input.length() > 300){
+			System.out.println("Invalid, Comment too long!");
+		}
+		else { //its valid
+			sql_writeComment(Input);
+			System.out.println("Comment Written!");
+		}
+	}
+
+	public static void rateMovie(){
+		System.out.printf("Give a rating between 0 - 100");
+		int Input = getIntInput();
+		if(Input < 0 || Input > 100){
+			System.out.println("Invalid Rating.");
+		}
+		else{
+			System.out.println("Rating Saved!");
+			sql_rateMovie(Input);
+		}
+	}
+
+	public static void favoriteMovie(){
+		System.out.printf("Are you sure? (y/n)");
+		String Input = getStringInput();
+		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
+			sql_favoriteMovie();
+		}
+	}
+
 	//////////////////////////////////////////////
 	/////////////SQL Functions////////////////
 	//////////////////////////////////////////////
@@ -683,6 +755,28 @@ public class Main {
 			String activity = "activity";
 			System.out.println(time + ": " + username + " did " + activity);
 		}
+	}
+
+	//TODO:: SQL QUERY print people i'm following
+	public static void sql_printFollowing(){
+		//Format: [username] [email]
+		//example filler
+
+	}
+
+	//TODO:: SQL QUERY write comment to current movie i'm viewing
+	public static void sql_writeComment(String comment){
+
+	}
+
+	//TODO:: SQL QUERY rate current movie
+	public static void sql_rateMovie(int rating){
+
+	}
+
+	//TODO:: SQL QUERY favorite current movie
+	public static void sql_favoriteMovie(){
+
 	}
 
 	
