@@ -287,7 +287,7 @@ public class Main {
 				System.out.println("0.\tBACK TO MAIN MENU");
 				
 				sql_printSearchResults();
-
+				
 				if(searchResults.size() == 0)
 					{System.out.println("No searches found");}
 
@@ -882,19 +882,35 @@ public class Main {
 	/////////////SQL Functions////////////////
 	//////////////////////////////////////////////
 
-
-	//TODO: SQL QUERY TO RETURN movies searched by title
 	public static void sql_getTitle(String Input){
 		//add video_id into searchResults
+		searchResults.clear();
+		Table t = runQuery("SELECT video_id FROM video WHERE title LIKE '%" + Input + "%'");
+		if(t == null) return;
+		String s = t.toString().substring(9);
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
 		
 	}
 
 	
 	//TODO: SQL QUERY TO RETURN movies searched by director
 	public static void sql_getDirector(String Input){
-
 		//add video_id into searchResults
-		
+		Table t = runQuery("SELECT video_id FROM video");
+		String s = t.toString().substring(9);
+		searchResults.clear();
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			String id = s.substring(lastindex,s.indexOf("\t",lastindex));
+			if(sql_getDirectors(id).indexOf(Input) != -1){searchResults.add(id);}
+			lastindex = s.indexOf("\n",lastindex);
+		}
 
 	}
 
@@ -915,7 +931,7 @@ public class Main {
 
 	public static void sql_printSearchResults(){
 		for(int i = 0; i < searchResults.size(); i++){
-
+			
 			//When its a movie search result, print the following
 			if(currIsMovie){
 				Table t = runQuery("SELECT * FROM video WHERE video_id =" + searchResults.get(i));
@@ -934,17 +950,37 @@ public class Main {
 		}
 	}
 
-
-	//TODO:: SQL QUERY TO RETURN users searched by username
 	public static void sql_getUsernames(String Input){
 
-		//add user_id into searchResults
+		//Add user_id into searchResults
+		searchResults.clear();
+		Table t = runQuery("SELECT user_id FROM users WHERE user_id LIKE '%" + Input + "%'");
+		if(t == null) return;
+		String s = t.toString().substring(8);
+		
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
 	}
 
-	//TODO:: SQL QUERY TO RETURN users searched by email
+
 	public static void sql_getEmails(String Input){
 
-		//add user_id into searchResults
+		//Add user_id into searchResults
+		searchResults.clear();
+		Table t = runQuery("SELECT user_id FROM users WHERE e_mail LIKE '%" + Input + "%'");
+		if(t == null) return;
+		String s = t.toString().substring(8);
+		
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
 	}
 
 	public static void sql_getAllUsers(){
