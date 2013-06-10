@@ -20,6 +20,7 @@ public class Main {
 	static String currMovie = null;
 	static String currUser = null;
 	static Boolean currIsMovie = false;
+	static Boolean isSuperUser = false;
 	
 	static ArrayList<String> searchResults = new ArrayList<String>();
 	static String movieInfo = "";
@@ -72,6 +73,7 @@ public class Main {
 				System.out.println("1.\tLOGIN");
 				System.out.println("2.\tCREATE NEW");
 				System.out.println("0.\tEXIT");
+				isSuperUser = false;
 				int input = getIntInput();
 				
 				switch (input) {
@@ -114,6 +116,7 @@ public class Main {
 				System.out.println("2.\tSEARCH USERS");
 				System.out.println("3.\tVIEW WALL");
 				System.out.println("4.\tSETTINGS");
+				if(isSuperUser){System.out.println("5.\tADD NEW MOVIE");}
 				System.out.println("0.\tLOGOUT");
 				
 				int input = getIntInput();
@@ -138,6 +141,10 @@ public class Main {
 				case 4:
 					page = Page.SETTINGS;
 					lockRepeat = false;
+					break;
+
+				case 5:
+					if(isSuperUser){addNewMovie();}
 					break;
 					
 				case 0:
@@ -380,6 +387,7 @@ public class Main {
 				System.out.println("Select what you would like to do:");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
 				System.out.println("1.\tFOLLOW USER");
+				if(isSuperUser){System.out.println("2.\tDELETE USER");}
 				int input = getIntInput();
 				switch (input) {
 					case 0:
@@ -389,7 +397,11 @@ public class Main {
 
 					case 1:
 						followUser();
-					break;
+						break;
+				
+					case 2:
+						if(isSuperUser){deleteUser(currUser);}
+						break;
 
 					default:
 						System.out.println("Invalid input. Please try again.");
@@ -573,18 +585,18 @@ public class Main {
 	//TODO: Get address and other info?
 	public static void createNewAccount(){
 
-		String usernameInput = getCheckInput("USERNAME",true);		
-		String passwordInput = getCheckInput("PASSWORD",true);
-		String firstInput = getCheckInput("First name",true);		
-		String middleInput = getCheckInput("Middle name",false);		
-		String lastInput  = getCheckInput("Last name",true);
-		String emailInput  = getCheckInput("e-mail",true);	
-		String street1Input = getCheckInput("Address - street (line 1)",false);
-		String street2Input = getCheckInput("Address - street (line 2)",false);
-		String stateInput = getCheckInput("Address - state",false);
-		String countryInput = getCheckInput("Address - country",false);
-		String zipInput = getCheckInput("Address - zipcode",false);
-		String preferencesInput = getCheckInput("Preferred Generes",false);
+		String usernameInput = getCheckInput("USERNAME",true,9);		
+		String passwordInput = getCheckInput("PASSWORD",true,36);
+		String firstInput = getCheckInput("First name",true,0);		
+		String middleInput = getCheckInput("Middle name",false,40);		
+		String lastInput  = getCheckInput("Last name",true,40);
+		String emailInput  = getCheckInput("e-mail",true,40);	
+		String street1Input = getCheckInput("Address - street (line 1)",false,40);
+		String street2Input = getCheckInput("Address - street (line 2)",false,40);
+		String stateInput = getCheckInput("Address - state",false,10);
+		String countryInput = getCheckInput("Address - country",false,20);
+		String zipInput = getCheckInput("Address - zipcode",false,20);
+		String preferencesInput = getCheckInput("Preferred Generes",false,40);
 
 		if(dbLoaded){
 			dbUpdate(
@@ -594,7 +606,13 @@ public class Main {
 		
 		System.out.println("\nAccount Created!");
 		System.out.println("Returning to the login page...");
+		System.out.println("Press any key to continue");
+		getStringInput();
 		page = Page.LOGIN;
+	}
+
+	public static void addNewMovie(){
+
 	}
 	
 	
@@ -643,7 +661,7 @@ public class Main {
 		}
 	}
 
-	public static String getCheckInput(String s, Boolean required){
+	public static String getCheckInput(String s, Boolean required,int maxlength){
 
 		clearConsole();
 		System.out.println("Please enter the following data:");
@@ -670,7 +688,7 @@ public class Main {
 				{System.out.println("Passwords to not match. Try again.");}
 			else if( (Input.equals("") && required))
 				{System.out.printf("Invalid %s. Must input something.\n",s);}
-			else if(Input.length() > 40 || (s.equals("USERNAME") && Input.length() > 9) ||  (s.equals("PASSWORD") && Input.length() > 36) )
+			else if(Input.length() > maxlength || (s.equals("USERNAME") && Input.length() > 9) ||  (s.equals("PASSWORD") && Input.length() > 36) )
 				{System.out.printf("Invalid %s, too long. Try Again.\n",s);}
 			else 
 				{returnval = Input; valid = true;}
@@ -770,6 +788,22 @@ public class Main {
 
 		System.out.println("Press any Key to Continue");
 		getStringInput();
+	}
+
+	public static Boolean deleteUser(String user_id){
+		Boolean returnval = false;
+		System.out.printf("DELETE USER? Are you sure? (y/n)");
+		String Input = getStringInput();
+		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
+			sql_deleteUser(user_id);
+			System.out.println("\nUser Deleted");
+			returnval = true;
+		}
+		else{System.out.println("\nCancled");}
+
+		System.out.println("Press any Key to Continue");
+		getStringInput();
+		return returnval;
 	}
 
 	//////////////////////////////////////////////
@@ -894,6 +928,11 @@ public class Main {
 		return false; //return false if it doesnt exist
 	}
 
+
+	//TODO:: SQL QUERY delete user foreverand erver
+	public static void sql_deleteUser(String user_id){
+
+	}
 	
 	public static void sql_printBalance(){
 		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
