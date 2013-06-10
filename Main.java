@@ -73,7 +73,7 @@ public class Main {
 				System.out.println("1.\tLOGIN");
 				System.out.println("2.\tCREATE NEW");
 				System.out.println("0.\tEXIT");
-				isSuperUser = false;
+				isSuperUser = true;
 				int input = getIntInput();
 				
 				switch (input) {
@@ -612,7 +612,41 @@ public class Main {
 	}
 
 	public static void addNewMovie(){
+		String titleInput = getCheckInput("Title",true,50);
+		int yearInput = getCheckInput2("Year",true,1500,3000);
+		int online_priceInput = getCheckInput2("Online Price",true,0,9999999);
+		int dvd_priceInput = getCheckInput2("DVD Price",true,0,999999);
+		int votesInput = 0;
+		int ratingInput = 0;
 
+		/*
+		String episodeInput = "";
+		int seasonInput = 0;
+			
+		System.out.println("TV Show? (y/n)");
+		String ismovie =  getStringInput();
+		Boolean isTVSHOW = false;
+		if(ismovie.substring(0,1).equals("y") || ismovie.substring(0,1).equals("Y"))
+			{isTVSHOW = true;}
+		
+		if(isTVSHOW){
+			episodeInput = getCheckInput("Episode #",true,9);
+			seasonInput = getCheckInput2("Season #",true,0,999); 
+		}
+		*/
+		if(dbLoaded){
+			dbUpdate(
+					"INSERT INTO video " +
+					"VALUES (0,'" + titleInput + "'," + yearInput + "," + online_priceInput + "," + dvd_priceInput + ")");
+		}
+
+	
+		System.out.println("\nMoive Created!");
+		System.out.println("Returning to Main Menu...");
+		System.out.println("Press any key to continue");
+		getStringInput();
+		page = Page.MAIN_MENU;
+		
 	}
 	
 	
@@ -690,6 +724,29 @@ public class Main {
 				{System.out.printf("Invalid %s. Must input something.\n",s);}
 			else if(Input.length() > maxlength || (s.equals("USERNAME") && Input.length() > 9) ||  (s.equals("PASSWORD") && Input.length() > 36) )
 				{System.out.printf("Invalid %s, too long. Try Again.\n",s);}
+			else 
+				{returnval = Input; valid = true;}
+		}
+		return returnval;
+	}
+
+	public static int getCheckInput2(String s,Boolean required, int min, int max){
+		clearConsole();
+		System.out.println("Please enter the following data:");
+
+		Boolean valid = false; //flag to indicate if we can move to the next item
+		int returnval = 0;
+
+		while(!valid){
+			if(required) {System.out.printf("%s (required): ",s);}
+			else {System.out.printf("%s: ",s);}
+			int Input = getIntInput();
+
+			//Check to see if its a valid input
+			if(Input  < min)
+				{System.out.print("Invalid. Must input higher number");}
+			else if(Input > max)
+				{System.out.print("Invalid. Must input lower number");}
 			else 
 				{returnval = Input; valid = true;}
 		}
