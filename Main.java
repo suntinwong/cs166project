@@ -21,7 +21,8 @@ public class Main {
 	static String currUser = null;
 	static Boolean currIsMovie = false;
 	static Boolean isSuperUser = false;
-	
+	static String searchedInput = "";	
+
 	static ArrayList<String> searchResults = new ArrayList<String>();
 	static String movieInfo = "";
 
@@ -167,25 +168,16 @@ public class Main {
 			lockRepeat = true;
 			while (lockRepeat){
 				System.out.println("\n Please select what you would like to view:");
-				System.out.println("99.\t[Testing] View First Movie");
 				System.out.println("1.\tSEARCH BY TITLE");
 				System.out.println("2.\tSEARCH BY DIRECTOR");
-				System.out.println("3.\tLIST ALL MOVIE TITLES");
+				System.out.println("3.\tSEARCH BY GENRE");
+				System.out.println("4.\tLIST ALL MOVIE TITLES");
 				System.out.println("0.\tBACK TO MAIN MENU");
 				
 				int input = getIntInput();
 				
 				switch (input) {
-				
-				//TODO: Get rid of this in final version
-				case 99:
-					currIsMovie = true;
-					searchResults.clear();
-					searchResults.add(getFirstMovie());
-					page = Page.SEARCH_RESULTS;
-					lockRepeat = false;
-					break;
-				
+			
 				case 0:
 					page = Page.MAIN_MENU;
 					lockRepeat = false;
@@ -204,6 +196,12 @@ public class Main {
 					break;
 
 				case 3:
+					page = Page.SEARCH_RESULTS;
+					search_by(6);
+					lockRepeat = false;
+					break;
+
+				case 4:
 					page = Page.SEARCH_RESULTS;
 					search_by(2);
 					lockRepeat = false;
@@ -226,7 +224,6 @@ public class Main {
 			lockRepeat = true;
 			while (lockRepeat){
 				System.out.println("\n Please select what you would like to view:");
-				System.out.println("99.\t[Testing] View First User");
 				System.out.println("1.\tSEARCH BY USERNAME");
 				System.out.println("2.\tSEARCH BY EMAIL");
 				System.out.println("3.\tLIST ALL USERS");
@@ -235,13 +232,6 @@ public class Main {
 				int input = getIntInput();
 				
 				switch (input) {
-				
-				case 99:
-					page = Page.USER_INFO;
-					currUser = getFirstUser();
-					lockRepeat = false;
-					currIsMovie = false;
-					break;
 				
 				case 0:
 					page = Page.MAIN_MENU;
@@ -278,7 +268,7 @@ public class Main {
 		//Movie Search Results
 		case SEARCH_RESULTS:
 			clearConsole();
-			System.out.println("=Search_results=-");
+			System.out.println("== Results for '" +searchedInput+ "' ==-");
 
 			lockRepeat = true;
 			while (lockRepeat){
@@ -761,44 +751,47 @@ public class Main {
 
 	public static void search_by(int searchType){
 		searchResults.clear();
+		String Input = "";
 		if(searchType == 0){ //Search by title
 			currIsMovie = true;	
 			System.out.printf("Enter title name: ");
-			String Input = getStringInput();
-			sql_getTitle(Input);
-				
+			Input = getStringInput();
+			sql_getTitle(Input);				
 		}
 		else if(searchType == 1){ //Search by directors
 			currIsMovie = true;	
 			System.out.printf("Enter director name: ");
-			String Input = getStringInput();
-			sql_getDirector(Input);
-			
+			Input = getStringInput();
+			sql_getDirector(Input);			
 		}
 		else if(searchType == 2){ //LIST ALL titles
 			currIsMovie = true;
-			sql_getAllTitles();
-				
+			sql_getAllTitles();				
 		}
 		else if(searchType == 3){ //Search by username
 			currIsMovie = false;	
 			System.out.printf("Enter username: ");
-			String Input = getStringInput();
-			sql_getUsernames(Input);
-				
+			Input = getStringInput();
+			sql_getUsernames(Input);		
 		}
 		else if(searchType == 4){ //Search by email
 			currIsMovie = false;
 			System.out.printf("Enter Email: ");
-			String Input = getStringInput();
+			Input = getStringInput();
 			sql_getEmails(Input);
-			
 		}
 		else if(searchType == 5){ //LIST ALL USERS
 			currIsMovie = false;
 			sql_getAllUsers();
-			
 		}
+		else if(searchType == 6){ //Search by genre
+			currIsMovie = true;
+			printAllGenres();	
+			System.out.printf("\nSelect Genre: ");
+			Input = getStringInput();
+			sql_getGenre(Input);
+		}
+		searchedInput = Input;
 	}
 	
 	public static Timestamp getTimeStamp(){
@@ -875,6 +868,18 @@ public class Main {
 		return returnval;
 	}
 
+	public static void printAllGenres(){
+		Table t = runQuery("SELECT genre_name FROM genre");
+		String s = t.toString().substring(10);
+		System.out.printf("\nAvailable Genres:");
+		int lastindex = 0;
+		while(lastindex != -1){
+			if(lastindex != 0) System.out.printf(", ");
+			lastindex++;
+			System.out.printf(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
+	}
 
 	
 
@@ -883,7 +888,6 @@ public class Main {
 	//////////////////////////////////////////////
 
 	public static void sql_getTitle(String Input){
-		//add video_id into searchResults
 		searchResults.clear();
 		Table t = runQuery("SELECT video_id FROM video WHERE title LIKE '%" + Input + "%'");
 		if(t == null) return;
@@ -894,13 +898,9 @@ public class Main {
 			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
 			lastindex = s.indexOf("\n",lastindex);
 		}
-		
 	}
 
-	
-	//TODO: SQL QUERY TO RETURN movies searched by director
 	public static void sql_getDirector(String Input){
-		//add video_id into searchResults
 		Table t = runQuery("SELECT video_id FROM video");
 		String s = t.toString().substring(9);
 		searchResults.clear();
@@ -911,12 +911,22 @@ public class Main {
 			if(sql_getDirectors(id).indexOf(Input) != -1){searchResults.add(id);}
 			lastindex = s.indexOf("\n",lastindex);
 		}
+	}
 
+	public static void sql_getGenre(String Input){
+		Table t = runQuery("SELECT video_id FROM video");
+		String s = t.toString().substring(9);
+		searchResults.clear();
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			String id = s.substring(lastindex,s.indexOf("\t",lastindex));
+			if(sql_getGenres(id).indexOf(Input) != -1){searchResults.add(id);}
+			lastindex = s.indexOf("\n",lastindex);
+		}
 	}
 
 	public static void sql_getAllTitles(){
-
-		//Add video_id into searchResults
 		Table t = runQuery("SELECT video_id FROM video");
 		String s = t.toString().substring(9);
 		searchResults.clear();
@@ -926,7 +936,6 @@ public class Main {
 			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
 			lastindex = s.indexOf("\n",lastindex);
 		}
-		//for(int i = 0; i < searchResults.size(); i++){System.out.println(searchResults.get(i));} getStringInput();
 	}
 
 	public static void sql_printSearchResults(){
@@ -951,8 +960,6 @@ public class Main {
 	}
 
 	public static void sql_getUsernames(String Input){
-
-		//Add user_id into searchResults
 		searchResults.clear();
 		Table t = runQuery("SELECT user_id FROM users WHERE user_id LIKE '%" + Input + "%'");
 		if(t == null) return;
@@ -968,8 +975,6 @@ public class Main {
 
 
 	public static void sql_getEmails(String Input){
-
-		//Add user_id into searchResults
 		searchResults.clear();
 		Table t = runQuery("SELECT user_id FROM users WHERE e_mail LIKE '%" + Input + "%'");
 		if(t == null) return;
@@ -1299,11 +1304,11 @@ public class Main {
 	}
 
 	public static String sql_getDirectors(String video_id){
-		String director = "";
+		String director = null;
 		Table d = runQuery(
-		"SELECT D.first_name, D.last_name " +
-		"FROM director D, directed D2, video V " +
-		"WHERE V.video_id =" + video_id + "AND V.video_id = D2.video_id AND D.director_id = D2.director_id");
+			"SELECT D.first_name, D.last_name " +
+			"FROM director D, directed D2, video V " +
+			"WHERE V.video_id =" + video_id + "AND V.video_id = D2.video_id AND D.director_id = D2.director_id");
 
 		if(d != null){
 			ArrayList<String> fname = d.getInfoFromColumn("first_name");
@@ -1314,10 +1319,25 @@ public class Main {
 				else{director = director + String.format(fname.get(i) + " " + lname.get(i));}	
 			}
 		}
-		
 		if (director == null){director = "Unknown";}
-
 		return director;
+	}
+
+	public static String sql_getGenres(String video_id){
+		String genre = null;
+		Table g = runQuery(
+			"SELECT G.genre_name AS genre " +
+			"FROM categorize C, genre G " +
+			"WHERE C.video_id =" + video_id + " AND C.genre_id = G.genre_id");
+		if(g != null){
+			ArrayList<String> genres = g.getInfoFromColumn("genre");
+			for (String string : genres) {
+				if (genre == null){genre = string;}
+				else{genre = genre + ", " + string;}
+			}
+		}
+		if (genre == null){genre = "Unclassified";}
+		return genre;
 
 	}
 	
