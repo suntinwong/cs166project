@@ -308,11 +308,10 @@ public class Main {
 			
 		//DETAIL MOVIE INFORMTION	
 		case MOVIE_INFO:
-			clearConsole();
-			System.out.println("-=MOVIE INFO=-");
-			
 			lockRepeat = true;
 			while (lockRepeat){
+				clearConsole();
+				System.out.println("-=MOVIE INFO=-");
 				sql_printMovieInfo(currMovie);
 				System.out.println("\n Please select what you would like to view:");
 				System.out.println("1.\tORDER DVD");
@@ -329,11 +328,17 @@ public class Main {
 				
 				case 1:
 					sql_placeOrder(currMovie);
+					System.out.println("Press any key to continue");
+					getStringInput();
 					break;
 
 				case 2:
-					page = Page.WATCH_ONLINE;
-					lockRepeat = false;
+					if(sql_placeOrder(currMovie)){
+						page = Page.WATCH_ONLINE;
+						lockRepeat = false;
+					}
+					System.out.println("Press any key to continue");
+					getStringInput();
 					break;
 
 				case 3:
@@ -366,9 +371,11 @@ public class Main {
 
 		//Searched user's info
 		case USER_INFO:
-			clearConsole();
-			System.out.println("=SEARCHED USER's INFO=");
+			
+			
 			while(lockRepeat){
+				clearConsole();
+				System.out.println("=SEARCHED USER's INFO=");
 				sql_printUserInfo(currUser);
 				System.out.println("Select what you would like to do:");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
@@ -379,6 +386,10 @@ public class Main {
 						page = Page.SEARCH_RESULTS;
 						lockRepeat = false;
 						break;
+
+					case 1:
+						followUser();
+					break;
 
 					default:
 						System.out.println("Invalid input. Please try again.");
@@ -721,9 +732,9 @@ public class Main {
 	}
 
 	public static void rateMovie(){
-		System.out.printf("Give a rating between 0 - 100: ");
+		System.out.printf("Give a rating between 0 - 10: ");
 		int Input = getIntInput();
-		if(Input < 0 || Input > 100){
+		if(Input < 0 || Input > 10){
 			System.out.println("\nInvalid Rating.");
 		}
 		else{
@@ -738,7 +749,7 @@ public class Main {
 		System.out.printf("Favorite? Are you sure? (y/n)");
 		String Input = getStringInput();
 		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
-			sql_favoriteMovie();
+			sql_favoriteMovie(currMovie);
 			System.out.println("\nMovie Favorited");
 		}
 		else{System.out.println("\nCancled");}
@@ -746,6 +757,19 @@ public class Main {
 		System.out.println("Press any Key to Continue");
 		getStringInput();
 	
+	}
+
+	public static void followUser(){
+		System.out.printf("Follow? Are you sure? (y/n)");
+		String Input = getStringInput();
+		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
+			sql_followUser(currUser);
+			System.out.println("\nUser Followed");
+		}
+		else{System.out.println("\nCancled");}
+
+		System.out.println("Press any Key to Continue");
+		getStringInput();
 	}
 
 	//////////////////////////////////////////////
@@ -854,9 +878,14 @@ public class Main {
 
 	}
 
-	//TODO:: SQL QUERY favorite current movie
-	public static void sql_favoriteMovie(){
+	//TODO:: SQL QUERY add movie_id to favoritied movie list
+	public static void sql_favoriteMovie(String movie_id){
 
+	}
+
+	//TODO:: SQL QUERY add user_id to followed user list
+	public static void sql_followUser(String user_id){
+	
 	}
 
 	//TODO:: SQL QUERY if username exsits in database
@@ -910,46 +939,35 @@ public class Main {
 		return Integer.valueOf(balance).intValue();
 	}
 	
-	public static void sql_placeOrder(String video_id){
-		Table t = runQuery(
-				"SELECT * FROM video " +
-				"WHERE video_id =" + video_id);
-		
+	public static Boolean sql_placeOrder(String video_id){
+		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
 		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
 		
-		Boolean lockRepeat = true;
-		while (lockRepeat){
-			System.out.println("This DVD costs $" + dvd_price + ". Are you sure you want to order it?");
-			sql_printBalance();
-			System.out.println("1.\tNo");
-			System.out.println("0.\tYes");
-			int input = getIntInput();
-			switch (input) {
-			case 1:
-				return;
-				
-			case 0:
-				lockRepeat = false;
-				break;
-				
-			default:
-				System.out.println("Invalid input. Please try again.");
-				break;
-			}
+		//Confirm payment
+		Boolean returnval = false;
+		System.out.println("This DVD costs $" + dvd_price + ". Are you sure you? (y/n)");
+		sql_printBalance();
+		String Input = getStringInput();
+		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
+			returnval = true;
+			System.out.println("\nUser Followed");
 		}
-		
+		else{System.out.println("\nCancled");}
+			
+		if(!returnval) return returnval;
 		Integer price = Integer.valueOf(dvd_price);
 		
+		//Confirm suffecent funds
 		if(price > sql_getBalance()){
 			System.out.println("Insufficient funds! Add more to your balance through Settings.");
-			return;
+			return returnval;
 		}
-		
-		sql_subtractFromBlance(price);
-		
-		dbUpdate("INSERT INTO orders " +
-				"VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "')");
-		System.out.println("\nOrder Placed!\n");
+		else{
+			sql_subtractFromBlance(price);
+			dbUpdate("INSERT INTO orders VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "')");
+			System.out.println("\nTransaction Complete!\n");
+			return returnval;
+		}
 	}
 
 	public static void sql_printUserInfo(String id){
@@ -968,7 +986,7 @@ public class Main {
 		String email = t.getInfoFromFirstTuple("e_mail");
 		System.out.println("E-Mail: " + email);
 
-		//Print their recent activity
+		//Print their favorited movies:
 
 		System.out.println("==============================================\n");
 	}
