@@ -588,7 +588,7 @@ public class Main {
 
 		String usernameInput = getCheckInput("USERNAME",true,9);		
 		String passwordInput = getCheckInput("PASSWORD",true,36);
-		String firstInput = getCheckInput("First name",true,0);		
+		String firstInput = getCheckInput("First name",true,40);		
 		String middleInput = getCheckInput("Middle name",false,40);		
 		String lastInput  = getCheckInput("Last name",true,40);
 		String emailInput  = getCheckInput("e-mail",true,40);	
@@ -987,9 +987,9 @@ public class Main {
 	}
 
 
-	//TODO:: SQL QUERY delete user foreverand erver
+	//TODO:: SQL QUERY delete user foreverand erver does not work atm
 	public static void sql_deleteUser(String user_id){
-
+		runQuery("DELETE FROM users WHERE user_id = '" + user_id +"'");
 	}
 
 	public static Boolean sql_isSuperUser(String id){
