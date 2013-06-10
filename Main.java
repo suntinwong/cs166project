@@ -284,9 +284,9 @@ public class Main {
 				System.out.println("=========================================\n");
 				System.out.println("CHOOSE Which TO VIEW.");
 				System.out.println("0.\tBACK TO MAIN MENU");
-				for(int i = 0; i < searchResults.size(); i++){
-					System.out.printf("%d.\t%s\n",i+1,searchResults.get(i));			
-				}
+				
+				sql_printSearchResults();
+
 				if(searchResults.size() == 0)
 					{System.out.println("No searches found");}
 
@@ -297,12 +297,9 @@ public class Main {
 					lockRepeat = false;
 				}
 				else if(input -1 < searchResults.size()){
-					movieInfo = "";
-					//TODO: Don't use this. Work around it. Just get the video_id
-					//getmovieInfo(searchResults.get(input-1));
 					if(currIsMovie){page = Page.MOVIE_INFO;}
 					else {page = Page.USER_INFO;}
-					
+					currMovie = (searchResults.get(input-1)); //TODO
 					lockRepeat = false;
 				}
 				else{
@@ -757,36 +754,42 @@ public class Main {
 	public static void search_by(int searchType){
 		searchResults.clear();
 		if(searchType == 0){ //Search by title
+			currIsMovie = true;	
 			System.out.printf("Enter title name: ");
 			String Input = getStringInput();
 			sql_getTitle(Input);
-			currIsMovie = true;		
+				
 		}
 		else if(searchType == 1){ //Search by directors
+			currIsMovie = true;	
 			System.out.printf("Enter director name: ");
 			String Input = getStringInput();
 			sql_getDirector(Input);
-			currIsMovie = true;	
+			
 		}
 		else if(searchType == 2){ //LIST ALL titles
+			currIsMovie = true;
 			sql_getAllTitles();
-			currIsMovie = true;	
+				
 		}
 		else if(searchType == 3){ //Search by username
+			currIsMovie = false;	
 			System.out.printf("Enter username: ");
 			String Input = getStringInput();
 			sql_getUsernames(Input);
-			currIsMovie = false;		
+				
 		}
 		else if(searchType == 4){ //Search by email
+			currIsMovie = false;
 			System.out.printf("Enter Email: ");
 			String Input = getStringInput();
 			sql_getEmails(Input);
-			currIsMovie = false;
+			
 		}
 		else if(searchType == 5){ //LIST ALL USERS
-			sql_getAllUsers();
 			currIsMovie = false;
+			sql_getAllUsers();
+			
 		}
 	}
 	
@@ -864,45 +867,58 @@ public class Main {
 		return returnval;
 	}
 
+
+	
+
 	//////////////////////////////////////////////
 	/////////////SQL Functions////////////////
 	//////////////////////////////////////////////
 
+
 	//TODO: SQL QUERY TO RETURN movies searched by title
 	public static void sql_getTitle(String Input){
-
-		//put into array with format: [Title], [director], [genre], [Category], [price]
-		//example:
-		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
-		String s2 = "Man of Steel, Zack Snyder, Action, Movie, $20";
-		searchResults.add(s);
-		searchResults.add(s2);
+		//add video_id into searchResults
+		
 	}
 
 	
 	//TODO: SQL QUERY TO RETURN movies searched by director
 	public static void sql_getDirector(String Input){
 
-		//put into array with format: [Title], [director], [genre], [Category], [price]
-		//example:
-		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
-		String s3 = "Community, Anthony Russo, Comedy, Series, $100";
-		searchResults.add(s);
-		searchResults.add(s3);
+		//add video_id into searchResults
+		
 
 	}
 
 	//TODO:: SQL QUERY TO PRINT ALL movies,sorted by title
 	public static void sql_getAllTitles(){
 
-		//put into array with format: [Title], [director], [genre], [Category], [price]
-		//example:
-		String s = "Serenity, Joss Whedon, SciFi, Movie, $5";
-		String s2 = "Man of Steel, Zack Snyder, Action, Movie, $20";
-		String s3 = "Community - Spanish 101, Anthony Russo, Comedy, Series, $5";
-		searchResults.add(s);
-		searchResults.add(s2);
-		searchResults.add(s3);
+		//Add video_id into searchResults
+		Table t = runQuery("SELECT video_id FROM video");
+		String s = t.toString().substring(9);
+		searchResults.clear();
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
+		//for(int i = 0; i < searchResults.size(); i++){System.out.println(searchResults.get(i));} getStringInput();
+	}
+
+	public static void sql_printSearchResults(){
+		for(int i = 0; i < searchResults.size(); i++){
+
+			//When its a movie search result, print the following
+			if(currIsMovie){
+				Table t = runQuery("SELECT * FROM video WHERE video_id =" + searchResults.get(i));
+				String title = t.getInfoFromFirstTuple("title");
+				String directors = sql_getDirectors(searchResults.get(i));
+				System.out.println(Integer.toString(i+1) + ".\t" + title +",By: " + directors);
+			}
+
+			
+		}
 	}
 
 
@@ -1240,6 +1256,29 @@ public class Main {
 		System.out.println("DVD Price: $" + dvd_price);
 		System.out.println("================================");
 		
+	}
+
+	public static String sql_getDirectors(String video_id){
+		String director = "";
+		Table d = runQuery(
+		"SELECT D.first_name, D.last_name " +
+		"FROM director D, directed D2, video V " +
+		"WHERE V.video_id =" + video_id + "AND V.video_id = D2.video_id AND D.director_id = D2.director_id");
+
+		if(d != null){
+			ArrayList<String> fname = d.getInfoFromColumn("first_name");
+			ArrayList<String> lname = d.getInfoFromColumn("last_name");
+			for (int i = 0; i < fname.size(); i++){
+				if(i != 0) director += ", ";
+				if (director == null){director = String.format(fname.get(i) + " " + lname.get(i));}
+				else{director = director + String.format(fname.get(i) + " " + lname.get(i));}	
+			}
+		}
+		
+		if (director == null){director = "Unknown";}
+
+		return director;
+
 	}
 	
 	public static void sql_increaseBalance(){
