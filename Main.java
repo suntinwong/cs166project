@@ -560,6 +560,7 @@ public class Main {
 			USERNAME = usernameInput;
 			page = Page.MAIN_MENU;
 			System.out.println("\nLogin in SUCCESS!");
+			isSuperUser = sql_isSuperUser(USERNAME);
 		}
 		else{
 			System.out.println("\nInvalid Login information!");
@@ -990,6 +991,14 @@ public class Main {
 	public static void sql_deleteUser(String user_id){
 
 	}
+
+	public static Boolean sql_isSuperUser(String id){
+		Boolean returnval = false;
+		Table t = runQuery("SELECT super_user_id FROM super_user WHERE super_user_id = '" + id +"'");
+		if(t == null) {System.out.println("You're not a Super User!");}
+		else {System.out.println("You are a Super User!"); returnval = true;};
+		return returnval;
+	}
 	
 	public static void sql_printBalance(){
 		Table t = runQuery("SELECT balance FROM users WHERE user_id = '" + USERNAME + "'");
@@ -1256,6 +1265,7 @@ public class Main {
 			t = db.executeQuery(query);
 		} catch (Exception e) {
 			System.out.println(e.toString());
+			return t;
 		}
 		return t;
 	}
