@@ -179,9 +179,10 @@ public class Main {
 				
 				//TODO: Get rid of this in final version
 				case 99:
-					currMovie = getFirstMovie();
 					currIsMovie = true;
-					page = Page.MOVIE_INFO;
+					searchResults.clear();
+					searchResults.add(getFirstMovie());
+					page = Page.SEARCH_RESULTS;
 					lockRepeat = false;
 					break;
 				
@@ -297,9 +298,15 @@ public class Main {
 					lockRepeat = false;
 				}
 				else if(input -1 < searchResults.size()){
-					if(currIsMovie){page = Page.MOVIE_INFO;}
-					else {page = Page.USER_INFO;}
-					currMovie = (searchResults.get(input-1)); //TODO
+					if(currIsMovie){
+						page = Page.MOVIE_INFO;
+						currMovie = (searchResults.get(input-1));
+					}
+					else {
+						page = Page.USER_INFO;
+						currUser = (searchResults.get(input-1));
+					}
+					
 					lockRepeat = false;
 				}
 				else{
@@ -380,6 +387,7 @@ public class Main {
 			while(lockRepeat){
 				clearConsole();
 				System.out.println("=SEARCHED USER's INFO=");
+				System.out.println(currUser);
 				sql_printUserInfo(currUser);
 				System.out.println("Select what you would like to do:");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
@@ -890,7 +898,6 @@ public class Main {
 
 	}
 
-	//TODO:: SQL QUERY TO PRINT ALL movies,sorted by title
 	public static void sql_getAllTitles(){
 
 		//Add video_id into searchResults
@@ -914,10 +921,16 @@ public class Main {
 				Table t = runQuery("SELECT * FROM video WHERE video_id =" + searchResults.get(i));
 				String title = t.getInfoFromFirstTuple("title");
 				String directors = sql_getDirectors(searchResults.get(i));
-				System.out.println(Integer.toString(i+1) + ".\t" + title +",By: " + directors);
+				System.out.println(Integer.toString(i+1) + ".\t" + title +", By: " + directors);
 			}
+			//When its a user search result, print the following
+			else{
+				Table t = runQuery("SELECT * FROM users WHERE user_id ='" + searchResults.get(i) +"'");
+				String title = t.getInfoFromFirstTuple("user_id");
+				String email = t.getInfoFromFirstTuple("e_mail");
+				System.out.println(Integer.toString(i+1) + ".\t" +title +", " + email);
 
-			
+			}
 		}
 	}
 
@@ -925,36 +938,27 @@ public class Main {
 	//TODO:: SQL QUERY TO RETURN users searched by username
 	public static void sql_getUsernames(String Input){
 
-		//put into array with format: [username], [email]
-		//example:
-		String s = "Suntinwong, chriswong030@gmail.com";
-		String s2 = "Joe shmuck, joeshmuck@aol.com";
-		searchResults.add(s);
-		searchResults.add(s2);
+		//add user_id into searchResults
 	}
 
 	//TODO:: SQL QUERY TO RETURN users searched by email
 	public static void sql_getEmails(String Input){
 
-		//put into array with format: [username], [email]
-		//example:
-		String s = "Nuntinwong, azn.c.wong@hotmail.com";
-		String s2 = "Jane shmoo, janeshmoo@aol.com";
-		searchResults.add(s);
-		searchResults.add(s2);
+		//add user_id into searchResults
 	}
 
-	//TODO:: SQL QUERY TO RETURN all users
 	public static void sql_getAllUsers(){
 
-		//put into array with format: [username], [email]
-		//example:
-		String s = "Joe shmuck, joeshmuck@aol.com";
-		String s2 = "Jane shmoo, janeshmoo@aol.com";
-		String s3 = "Suntinwong, chriswong030@gmail.com";
-		searchResults.add(s);
-		searchResults.add(s2);
-		searchResults.add(s3);
+		//Add user_id into searchResults
+		Table t = runQuery("SELECT user_id FROM users");
+		String s = t.toString().substring(8);
+		searchResults.clear();
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
 	}
 
 	//TODO:: SQL QUERY print My wall
