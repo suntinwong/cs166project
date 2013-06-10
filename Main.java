@@ -18,6 +18,7 @@ public class Main {
 	static EmbeddedSQL db = null;
 	static Boolean dbLoaded = false;
 	static String currMovie = null;
+	static String currUser = null;
 	static Boolean currIsMovie = false;
 	
 	static ArrayList<String> searchResults = new ArrayList<String>();
@@ -217,6 +218,7 @@ public class Main {
 			lockRepeat = true;
 			while (lockRepeat){
 				System.out.println("\n Please select what you would like to view:");
+				System.out.println("99.\t[Testing] View First User");
 				System.out.println("1.\tSEARCH BY USERNAME");
 				System.out.println("2.\tSEARCH BY EMAIL");
 				System.out.println("3.\tLIST ALL USERS");
@@ -225,7 +227,14 @@ public class Main {
 				int input = getIntInput();
 				
 				switch (input) {
-
+				
+				case 99:
+					page = Page.USER_INFO;
+					currUser = getFirstUser();
+					lockRepeat = false;
+					currIsMovie = false;
+					break;
+				
 				case 0:
 					page = Page.MAIN_MENU;
 					lockRepeat = false;
@@ -360,7 +369,10 @@ public class Main {
 			clearConsole();
 			System.out.println("=SEARCHED USER's INFO=");
 			while(lockRepeat){
+				sql_printUserInfo(currUser);
+				System.out.println("Select what you would like to do:");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
+				System.out.println("1.\tFOLLOW USER");
 				int input = getIntInput();
 				switch (input) {
 					case 0:
@@ -939,6 +951,28 @@ public class Main {
 				"VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "')");
 		System.out.println("\nOrder Placed!\n");
 	}
+
+	public static void sql_printUserInfo(String id){
+
+		//Print the username
+		Table t= runQuery("SELECT * FROM users WHERE user_id ='" + id + "'");
+		String name = t.getInfoFromFirstTuple("user_id");
+		System.out.println("Username: " + name);
+
+		//Print first & last name
+		String fname = t.getInfoFromFirstTuple("first_name");
+		String lname = t.getInfoFromFirstTuple("last_name");
+		System.out.println("Name: "+fname + " " + lname);
+
+		//Print the email
+		String email = t.getInfoFromFirstTuple("e_mail");
+		System.out.println("E-Mail: " + email);
+
+		//Print their recent activity
+
+		System.out.println("==============================================\n");
+	}
+
 	
 	//TODO: FINISH THESE
 	public static void sql_printMovieInfo(String video_id){
@@ -960,7 +994,6 @@ public class Main {
 				"SELECT S.first_name, S.last_name " +
 				"FROM star S, played P, video V " +
 				"WHERE V.video_id =" + video_id + "AND V.video_id = P.video_id AND S.star_id = P.star_id");
-		
 		
 		Table r = runQuery(
 				"SELECT rating " +
@@ -1173,6 +1206,13 @@ public class Main {
 	public static String getFirstMovie(){
 		Table t = runQuery("SELECT video_id FROM video");
 		String id = t.getInfoFromColumn("video_id").get(0);
+		System.out.print("Obtained: " + id);
+		return id;
+	}
+
+	public static String getFirstUser(){
+		Table t = runQuery("SELECT user_id FROM users");
+		String id = t.getInfoFromColumn("user_id").get(0);
 		System.out.print("Obtained: " + id);
 		return id;
 	}
