@@ -623,9 +623,8 @@ public class Main {
 		String titleInput = getCheckInput("Title",true,50);
 		int yearInput = getCheckInput2("Year",true,1500,3000);
 		String director = getCheckInput("Director",true,40);
-		//authors
-		//actors
-		//genre
+		ArrayList<String> authors = getCheckInputArray("Author",true,40);
+		//to do: genre
 		int online_priceInput = getCheckInput2("Online Price",true,0,9999999);
 		int dvd_priceInput = getCheckInput2("DVD Price",true,0,999999);
 		int votesInput = 0;
@@ -667,6 +666,19 @@ public class Main {
 		dbUpdate("INSERT INTO directed VALUES ("+vid_id+","+d_id+")");
 
 		//authors
+		for(int i = 0; i < authors.size(); i++){
+			String a_lname = authors.get(i).substring(0,authors.get(i).indexOf(","));
+			String a_fname = authors.get(i).substring(authors.get(i).indexOf(",")+1);
+			Table t3 = runQuery("SELECT * FROM author WHERE first_name = '"+ a_fname + "' AND last_name ='" +a_lname+"'");
+			String a_id = null;
+			if(t3 == null){
+				Table temp = runQuery("SELECT COUNT(*) FROM author");
+				a_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+				dbUpdate("INSERT INTO author VALUES ("+a_id +",'"+a_fname+"','"+a_lname+"')");
+			}
+			else	{a_id = t3.getInfoFromFirstTuple("author_id");}
+			dbUpdate("INSERT INTO written VALUES ("+vid_id+","+a_id+")");
+		}
 		
 		
 	
@@ -734,7 +746,7 @@ public class Main {
 		String returnval = "";
 
 		while(!valid){
-			if(s.equals("Director")) 
+			if(s.equals("Director")||s.equals("Author") )
 				{System.out.printf("%s: (lastname,firstname): ",s);}
 			else if(required) {System.out.printf("%s (required): ",s);}
 			else {System.out.printf("%s: ",s);}
@@ -752,7 +764,7 @@ public class Main {
 				{System.out.printf("Invalid, username already exsits");}
 			else if(s.equals("PASSWORD") && !Input.equals(Input2))
 				{System.out.println("Passwords to not match. Try again.");}
-			else if( (s.equals("Director") ) && Input.indexOf(",") ==-1 )
+			else if( (s.equals("Director") || s.equals("Author")) && Input.indexOf(",") ==-1 )
 				{System.out.println("Invalid, must follow format: lastname,firstname");}
 			else if( (Input.equals("") && required))
 				{System.out.printf("Invalid. Must input something.\n");}
@@ -785,6 +797,17 @@ public class Main {
 				{returnval = Input; valid = true;}
 		}
 		return returnval;
+	}
+
+	public static ArrayList<String> getCheckInputArray(String s, Boolean required, int maxchar){
+		ArrayList<String> list = new ArrayList<String>();
+		String input = "y";
+		while(input.equals("Y") || input.equals("y")){
+			list.add(getCheckInput(s,required,maxchar));
+			System.out.printf("Add another author? (y/n):");
+			input = getStringInput();
+		}
+		return list;
 	}
 
 	public static void search_by(int searchType){
