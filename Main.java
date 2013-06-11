@@ -418,7 +418,6 @@ public class Main {
 				clearConsole();
 				System.out.println("=FOLLOWING WALL=-");
 				sql_printMyWall();
-				System.out.println("\n==================================");
 				System.out.println("1.\tEDIT PEOPLE I AM FOLLOWING");
 				System.out.println("0.\tBACK TO MAIN MENU");
 				System.out.printf("\n Select one of the above options:");
@@ -1048,14 +1047,14 @@ public class Main {
 
 	//TODO:: SQL QUERY print My wall
 	public static void sql_printMyWall(){
-		//Format: [time]: [username] did [activity]
-		//example filler stuff
-		for(int i = 0; i < 10; i++){
+		System.out.println("----------------------------------");
+		for(int i = 0; i < 3; i++){
 			String time = "time";
 			String username = "username";
 			String activity = "activity";
-			System.out.println(time + ": " + username + " did " + activity);
+			System.out.printf(time + "\n" + username + " did\n" + activity + "\n\n");
 		}
+		System.out.println("----------------------------------");
 	}
 
 	public static void sql_printFollowing(){
