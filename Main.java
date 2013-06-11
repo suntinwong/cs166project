@@ -1051,7 +1051,8 @@ public class Main {
 	public static Boolean sql_usernameExists(String s){
 		
 		Table t = runQuery("SELECT user_id FROM users WHERE user_id ='" +s+"'");
-		return false; //return false if it doesnt exist
+		if(t != null) return true;
+		else return false; //return false if it doesnt exist
 	}
 
 
