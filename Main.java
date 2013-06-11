@@ -398,7 +398,9 @@ public class Main {
 						break;
 				
 					case 2:
-						if(isSuperUser){deleteUser(currUser);}
+						if(isSuperUser){
+							if(deleteUser(currUser)){lockRepeat = false;}
+						}
 						break;
 
 					default:
@@ -502,6 +504,7 @@ public class Main {
 				System.out.println("2.\tINCREASE BALANCE");
 				System.out.println("3.\tMAKE ACCOUNT PRIVATE");
 				System.out.println("4.\tMAKE ACCOUNT PUBLIC");
+				System.out.println("5.\tDELETE MY ACCOUNT");
 				System.out.println("0.\tBACK");
 				System.out.printf("\n Select one of the above options:");
 				
@@ -531,6 +534,10 @@ public class Main {
 					System.out.println("Privacy Features aren't implemented in the SQL...");
 					System.out.println("Press any Key to Continue");
 					getStringInput();
+					break;
+					
+				case 5:
+					if(deleteUser(USERNAME)){lockRepeat = false;}
 					break;
 					
 				case 0:
@@ -891,7 +898,7 @@ public class Main {
 			currIsMovie = true;
 			printAllGenres();	
 			System.out.printf("\n Select Genre:");
-			Input = getStringInput();
+			Input = getGenreInput();
 			sql_getGenre(Input);
 		}
 		searchedInput = Input;
@@ -988,12 +995,17 @@ public class Main {
 
 	public static Boolean deleteUser(String user_id){
 		Boolean returnval = false;
+		System.out.println("WARNING: THIS WILL DELETE ANYTING RELEATED TO USER!!!");
+		if(user_id.equals(USERNAME)){System.out.println("NOTE: You are deleting yourself.");}
 		System.out.printf("DELETE USER? Are you sure? (y/n)");
 		String Input = getStringInput();
+		
 		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
 			sql_deleteUser(user_id);
 			System.out.println("\nUser Deleted");
 			returnval = true;
+			page = Page.USER_SEARCH;
+			if(user_id.equals(USERNAME)){page = Page.LOGIN;}
 		}
 		else{System.out.println("\nCancled");}
 
@@ -1223,14 +1235,32 @@ public class Main {
 
 	//TODO:: SQL QUERY delete user foreverand erver does not work atm
 	public static void sql_deleteUser(String user_id){
+		//dete ratings
+		runQuery("DELETE FROM rate WHERE user_id = '" + user_id +"'");
+		
+		//delete comments
+		runQuery("DELETE FROM comment WHERE user_id = '" + user_id +"'");
+		
+		//delete likes
+		runQuery("DELETE FROM likes WHERE user_id = '" + user_id +"'");
+		
+		//delete superuser
+		runQuery("DELETE FROM super_user WHERE super_user_id = '" + user_id +"'");
+		
+		//delete following & followers
+		runQuery("DELETE FROM follow WHERE user_id_to  = '" + user_id +"' OR user_id_from ='" + user_id +"'");
+		
+		//delete orders
+		runQuery("DELETE FROM orders WHERE user_id = '" + user_id +"'");
+		
+		//delete user
 		runQuery("DELETE FROM users WHERE user_id = '" + user_id +"'");
 	}
 
 	public static Boolean sql_isSuperUser(String id){
 		Boolean returnval = false;
 		Table t = runQuery("SELECT super_user_id FROM super_user WHERE super_user_id = '" + id +"'");
-		if(t == null) {System.out.println("You're not a Super User!");}
-		else {System.out.println("You are a Super User!"); returnval = true;};
+		if(t != null) {System.out.println("You are a Super User!"); returnval = true;};
 		return returnval;
 	}
 	
