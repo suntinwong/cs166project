@@ -622,12 +622,14 @@ public class Main {
 	public static void addNewMovie(){
 		String titleInput = getCheckInput("Title",true,50);
 		int yearInput = getCheckInput2("Year",true,1500,3000);
+		String director = getCheckInput("Director",true,40);
+		//authors
+		//actors
+		//genre
 		int online_priceInput = getCheckInput2("Online Price",true,0,9999999);
 		int dvd_priceInput = getCheckInput2("DVD Price",true,0,999999);
 		int votesInput = 0;
-		int ratingInput = 0;
-
-		/*
+		int ratingInput = 0;	
 		String episodeInput = "";
 		int seasonInput = 0;
 			
@@ -641,19 +643,39 @@ public class Main {
 			episodeInput = getCheckInput("Episode #",true,9);
 			seasonInput = getCheckInput2("Season #",true,0,999); 
 		}
-		*/
-		if(dbLoaded){
-			dbUpdate(
-					"INSERT INTO video " +
-					"VALUES (0,'" + titleInput + "'," + yearInput + "," + online_priceInput + "," + dvd_priceInput + ")");
+		
+		//get video number
+		Table t = runQuery("SELECT COUNT(*) FROM video");
+		String vid_id = Integer.toString((Integer.parseInt(t.getInfoFromFirstTuple("count"))+1));
+	
+		
+		//video table
+		dbUpdate("INSERT INTO video " +
+					"VALUES ('"+vid_id+ "','" + titleInput + "'," + yearInput + "," + online_priceInput + "," + dvd_priceInput + ")");
+		
+		//director&directed
+		String d_lname = director.substring(0,director.indexOf(","));
+		String d_fname = director.substring(director.indexOf(",")+1);
+		Table t2 = runQuery("SELECT * FROM director WHERE first_name = '"+ d_fname + "' AND last_name ='" +d_lname+"'");
+		String d_id = null;
+		if(t2 == null){
+			Table temp = runQuery("SELECT COUNT(*) FROM director");
+			d_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+			dbUpdate("INSERT INTO director VALUES ("+d_id +",'"+d_fname+"','"+d_lname+"')");
 		}
+		else	{d_id = t2.getInfoFromFirstTuple("director_id");}
+		dbUpdate("INSERT INTO directed VALUES ("+vid_id+","+d_id+")");
 
+		//authors
+		
+		
 	
 		System.out.println("\nMoive Created!");
 		System.out.println("Returning to Main Menu...");
 		System.out.println("Press any key to continue");
 		getStringInput();
 		page = Page.MAIN_MENU;
+		
 		
 	}
 	
@@ -712,7 +734,9 @@ public class Main {
 		String returnval = "";
 
 		while(!valid){
-			if(required) {System.out.printf("%s (required): ",s);}
+			if(s.equals("Director")) 
+				{System.out.printf("%s: (lastname,firstname): ",s);}
+			else if(required) {System.out.printf("%s (required): ",s);}
 			else {System.out.printf("%s: ",s);}
 			String Input = getStringInput();
 
@@ -728,10 +752,12 @@ public class Main {
 				{System.out.printf("Invalid, username already exsits");}
 			else if(s.equals("PASSWORD") && !Input.equals(Input2))
 				{System.out.println("Passwords to not match. Try again.");}
+			else if( (s.equals("Director") ) && Input.indexOf(",") ==-1 )
+				{System.out.println("Invalid, must follow format: lastname,firstname");}
 			else if( (Input.equals("") && required))
-				{System.out.printf("Invalid %s. Must input something.\n",s);}
+				{System.out.printf("Invalid. Must input something.\n");}
 			else if(Input.length() > maxlength || (s.equals("USERNAME") && Input.length() > 9) ||  (s.equals("PASSWORD") && Input.length() > 36) )
-				{System.out.printf("Invalid %s, too long. Try Again.\n",s);}
+				{System.out.printf("Invalid. Too long. Try Again.\n");}
 			else 
 				{returnval = Input; valid = true;}
 		}
