@@ -63,17 +63,17 @@ public class Main {
 		switch (page) {
 		
 		//LOGIN SCREEN
-		case LOGIN:
-			clearConsole();
-			System.out.println("Welcome to MovieNet!");
-			System.out.println("\n\n\n-=LOGIN MENU=-");
+		case LOGIN:		
 			
 			lockRepeat = true;
 			while (lockRepeat){
-				System.out.println("Please Choose one of the following options:");
+				clearConsole();
+				System.out.println("Welcome to MovieNet!");
+				System.out.println("\n\n-=LOGIN MENU=-");
 				System.out.println("1.\tLOGIN");
 				System.out.println("2.\tCREATE NEW");
 				System.out.println("0.\tEXIT");
+				System.out.printf("\n Select one of the above options:");
 				isSuperUser = true;
 				int input = getIntInput();
 				
@@ -96,6 +96,7 @@ public class Main {
 					
 				default:
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 					break;
 				}
 			}
@@ -106,20 +107,19 @@ public class Main {
 			break;
 			
 		//MAIN MENU
-		case MAIN_MENU:
-			clearConsole();
-			System.out.println("-=MAIN MENU=-");
+		case MAIN_MENU:		
 			
 			lockRepeat = true;
 			while (lockRepeat){
-				System.out.println("\n Please select what you would like to view:");
-				System.out.println("1.\tSEARCH MOVIES");
-				System.out.println("2.\tSEARCH USERS");
-				System.out.println("3.\tVIEW WALL");
-				System.out.println("4.\tSETTINGS");
-				if(isSuperUser){System.out.println("5.\tADD NEW MOVIE");}
+				clearConsole();
+				System.out.println("-=MAIN MENU=-");
+				System.out.println("1.\tFIND A MOVIE");
+				System.out.println("2.\tFIND A USER");
+				System.out.println("3.\tVIEW MY WALL");
+				System.out.println("4.\tEDIT SETTINGS");
+				if(isSuperUser){System.out.println("5.\tADD NEW MOVIE [SuperUser] ");}
 				System.out.println("0.\tLOGOUT");
-				
+				System.out.printf("\n Select one of the above options:");
 				int input = getIntInput();
 				
 				switch (input) {
@@ -155,6 +155,7 @@ public class Main {
 					
 				default:
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 					break;
 				}
 			}
@@ -162,17 +163,17 @@ public class Main {
 		
 		//MOVE SEARCH PAGE
 		case MOVIE_SEARCH:
-			clearConsole();
-			System.out.println("-=MOVIE SEARCH=-");
 			
 			lockRepeat = true;
 			while (lockRepeat){
-				System.out.println("\n Please select what you would like to view:");
+				clearConsole();
+				System.out.println("-=MOVIE SEARCH=-");
 				System.out.println("1.\tSEARCH BY TITLE");
 				System.out.println("2.\tSEARCH BY DIRECTOR");
 				System.out.println("3.\tSEARCH BY GENRE");
 				System.out.println("4.\tLIST ALL MOVIE TITLES");
 				System.out.println("0.\tBACK TO MAIN MENU");
+				System.out.printf("\n Select one of the above options:");
 				
 				int input = getIntInput();
 				
@@ -209,6 +210,7 @@ public class Main {
 
 				default:
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 					break;
 				}
 			}
@@ -218,16 +220,16 @@ public class Main {
 
 		//USER SEARCH PAGE
 		case USER_SEARCH:
-			clearConsole();
-			System.out.println("=USER SEARCH=-");
-			
+						
 			lockRepeat = true;
 			while (lockRepeat){
-				System.out.println("\n Please select what you would like to view:");
+				clearConsole();
+				System.out.println("=USER SEARCH=-");
 				System.out.println("1.\tSEARCH BY USERNAME");
 				System.out.println("2.\tSEARCH BY EMAIL");
 				System.out.println("3.\tLIST ALL USERS");
 				System.out.println("0.\tBACK TO MAIN MENU");
+				System.out.printf("\n Select one of the above options:");
 				
 				int input = getIntInput();
 				
@@ -258,6 +260,7 @@ public class Main {
 
 				default:
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 					break;
 				}
 			}
@@ -267,20 +270,17 @@ public class Main {
 
 		//Movie Search Results
 		case SEARCH_RESULTS:
-			clearConsole();
-			System.out.println("== Results for '" +searchedInput+ "' ==-");
-
+			
 			lockRepeat = true;
 			while (lockRepeat){
-				System.out.println("=========================================\n");
-				System.out.println("CHOOSE Which TO VIEW.");
-				System.out.println("0.\tBACK TO MAIN MENU");
-				
+				clearConsole();
+				System.out.println("== Results for '" +searchedInput+ "' ==-");
 				sql_printSearchResults();
-				
 				if(searchResults.size() == 0)
 					{System.out.println("No searches found");}
 
+				System.out.println("0.\tBACK TO MAIN MENU");
+				System.out.printf("\n Choose which TO VIEW:");
 
 				int input = getIntInput();
 				if (input == 0) {
@@ -301,6 +301,7 @@ public class Main {
 				}
 				else{
 					System.out.println("Invalid input. Please try again.\n\n");
+					getStringInput();
 				}
 			}
 			break;
@@ -314,7 +315,6 @@ public class Main {
 				clearConsole();
 				System.out.println("-=MOVIE INFO=-");
 				sql_printMovieInfo(currMovie);
-				System.out.println("\n Please select what you would like to view:");
 				System.out.println("1.\tORDER DVD");
 				System.out.println("2.\tWATCH ONLINE");
 				System.out.println("3.\tVIEW COMMENTS");
@@ -322,6 +322,7 @@ public class Main {
 				System.out.println("5.\tRATE");
 				System.out.println("6.\tFAVORITE");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
+				System.out.printf("\n Select one of the above options:");
 				
 				int input = getIntInput();
 				
@@ -365,6 +366,7 @@ public class Main {
 
 				default:
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 					break;
 				}
 			}
@@ -373,15 +375,16 @@ public class Main {
 		//Searched user's info
 		case USER_INFO:
 			
-			
+			lockRepeat = true;
 			while(lockRepeat){
 				clearConsole();
 				System.out.println("=USER's INFO=");
 				sql_printUserInfo(currUser);
-				System.out.println("Select what you would like to do:");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
-				System.out.println("1.\tFOLLOW USER");
-				if(isSuperUser){System.out.println("2.\tDELETE USER");}
+				if(!isfollowing()){System.out.println("1.\tFOLLOW USER");}
+				else {System.out.println("1.\tUN-FOLLOW USER");}
+				if(isSuperUser){System.out.println("2.\tDELETE USER [SuperUser]");}
+				System.out.printf("Select one of the above options:");
 				int input = getIntInput();
 				switch (input) {
 					case 0:
@@ -390,7 +393,8 @@ public class Main {
 						break;
 
 					case 1:
-						followUser();
+						if(!isfollowing()){followUser();}
+						else {unfollowUser(currUser);}
 						break;
 				
 					case 2:
@@ -399,6 +403,7 @@ public class Main {
 
 					default:
 						System.out.println("Invalid input. Please try again.");
+						getStringInput();
 						break;
 				}
 			}
@@ -407,13 +412,16 @@ public class Main {
 		
 		//USER'S FOLLOWING WALL OF INFO
 		case FOLLOWING:
-			clearConsole();
-			System.out.println("=FOLLOWING WALL=-");
-			sql_printMyWall();
+			
 			lockRepeat = true;
 			while(lockRepeat){
+				clearConsole();
+				System.out.println("=FOLLOWING WALL=-");
+				sql_printMyWall();
+				System.out.println("\n==================================");
 				System.out.println("1.\tEDIT PEOPLE I AM FOLLOWING");
 				System.out.println("0.\tBACK TO MAIN MENU");
+				System.out.printf("\n Select one of the above options:");
 				int input = getIntInput();
 				switch (input) {
 					case 1:
@@ -428,6 +436,7 @@ public class Main {
 
 					default:
 						System.out.println("Invalid input. Please try again.");
+						getStringInput();
 						break;
 				}
 			}
@@ -435,34 +444,38 @@ public class Main {
 			
 		//ADD/REMOVE THE ACCOUTN USER IS FOLLOWING	
 		case FOLLOWING_EDIT:
-			clearConsole();
-			System.out.println("=EDIT PEOPLE I AM FOLLOWING=-");
+			
 			lockRepeat = true;
-			sql_printFollowing();
 			while(lockRepeat){
-				System.out.println("Select whom to stop following");
+				clearConsole();
+				System.out.println("=EDIT PEOPLE I AM FOLLOWING=-");
+				sql_printFollowing();
 				System.out.println("0.\tBACK TO MY WALL");
+				System.out.printf("\nSelect whom to stop following:");
 				int input = getIntInput();
-
 				if(input == 0){
 					page = Page.FOLLOWING;
 					lockRepeat = false;
 				}
+				else if(input -1 < searchResults.size()){
+					unfollowUser(searchResults.get(input-1));
+				}
 
 				else{
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 				}
 			}
 			break;
 
 		case WATCH_ONLINE:
-			clearConsole();
-			System.out.println("-=WATCHING ONLINE=-");
-			printMovie();
-			System.out.println();
+		
 			lockRepeat = true;
 			while(lockRepeat){
-				System.out.println("0.\tBACK");
+				clearConsole();
+				System.out.println("-=WATCHING ONLINE=-");
+				printMovie();
+				System.out.printf("\n\n Enter 0 to go back");
 				int input = getIntInput();
 				switch(input){
 					case 0:
@@ -480,17 +493,18 @@ public class Main {
 		//USER'S SETTINGS
 		case SETTINGS:
 			
-			System.out.println("-=SETTINGS=-");
+			
 			
 			lockRepeat = true;
 			while (lockRepeat){
 				clearConsole();
-				System.out.println("\n Please select the setting you would like to change:");
+				System.out.println("-=SETTINGS=-");
 				System.out.println("1.\tCHECK BALANCE");
 				System.out.println("2.\tINCREASE BALANCE");
 				System.out.println("3.\tMAKE ACCOUNT PRIVATE");
 				System.out.println("4.\tMAKE ACCOUNT PUBLIC");
 				System.out.println("0.\tBACK");
+				System.out.printf("\n Select one of the above options:");
 				
 				int input = getIntInput();
 				
@@ -527,6 +541,7 @@ public class Main {
 					
 				default:
 					System.out.println("Invalid input. Please try again.");
+					getStringInput();
 					break;
 				}
 			}
@@ -552,7 +567,8 @@ public class Main {
 		if (!dbLoaded || validateLogin(usernameInput, passwordInput)) {
 			USERNAME = usernameInput;
 			page = Page.MAIN_MENU;
-			System.out.println("\nLogin in SUCCESS!");
+			clearConsole();
+			System.out.println("\nLogin SUCCESS!");
 			isSuperUser = sql_isSuperUser(USERNAME);
 		}
 		else{
@@ -784,7 +800,7 @@ public class Main {
 		else if(searchType == 6){ //Search by genre
 			currIsMovie = true;
 			printAllGenres();	
-			System.out.printf("\nSelect Genre: ");
+			System.out.printf("\n Select Genre:");
 			Input = getStringInput();
 			sql_getGenre(Input);
 		}
@@ -823,7 +839,7 @@ public class Main {
 		}
 		else
 			{System.out.printf("You have already rated this movie.");}
-		System.out.println("\nPress any Key to Continue");
+		System.out.printf("Press any Key to Continue");
 		getStringInput();
 	}
 
@@ -841,14 +857,40 @@ public class Main {
 	
 	}
 
+	public static boolean isfollowing(){
+		Table t = runQuery("SELECT user_id_to FROM follow WHERE user_id_to ='"+currUser+"' AND  user_id_from ='"+USERNAME+"'" );
+		if(t == null){return false;}
+		else {return true;}
+	}
+
 	public static void followUser(){
-		System.out.printf("Follow? Are you sure? (y/n)");
+		if(currUser.equals(USERNAME)){
+			System.out.println("Cannot follow yourself!");
+		} 
+		else{
+			System.out.printf("Follow? Are you sure? (y/n)");
+			String Input = getStringInput();
+			if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
+				sql_followUser(currUser);
+				System.out.println("\nUser Followed");
+			}
+			else{System.out.println("\nCancled");}
+		}
+
+		System.out.println("Press any Key to Continue");
+		getStringInput();
+	}
+
+	public static void unfollowUser(String id){
+		
+		System.out.printf("Un-Follow? Are you sure? (y/n)");
 		String Input = getStringInput();
 		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
-			sql_followUser(currUser);
-			System.out.println("\nUser Followed");
+			sql_unfollowUser(id);
+			System.out.println("\nUser Un-followed");
 		}
 		else{System.out.println("\nCancled");}
+		
 
 		System.out.println("Press any Key to Continue");
 		getStringInput();
@@ -1016,11 +1058,24 @@ public class Main {
 		}
 	}
 
-	//TODO:: SQL QUERY print people i'm following
 	public static void sql_printFollowing(){
-		//Format: [username] [email]
-		//example filler
+		Table t = runQuery("SELECT user_id_to FROM follow WHERE user_id_from ='"+USERNAME+"'");
+		String s = t.toString().substring(11);
+		searchResults.clear();
+		int lastindex = 0;
+		while(lastindex != -1){
+			lastindex++;
+			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+			lastindex = s.indexOf("\n",lastindex);
+		}
 
+		//print if needed
+		if(searchResults.size() == 0)
+			{System.out.println("You are not following anyone!");}
+		else{
+			for(int i = 0; i < searchResults.size(); i++)
+				{System.out.println(Integer.toString(i+1) + ".\t"+ searchResults.get(i));}
+		}
 	}
 
 	public static void sql_writeComment(String comment){
@@ -1042,12 +1097,16 @@ public class Main {
 			"VALUES ('"+ USERNAME + "'," + movie_id + ")");
 	}
 
-	//TODO:: SQL QUERY add user_id to followed user list
 	public static void sql_followUser(String user_id){
-	
+		dbUpdate("INSERT INTO follow "+
+			"VALUES ('"+ currUser + "','" + USERNAME + "',NOW())");
 	}
 
-	//TODO:: SQL QUERY if username exsits in database
+	public static void sql_unfollowUser(String user_id){
+		dbUpdate("DELETE FROM follow "+
+			"WHERE user_id_to = '" +currUser+ "'AND user_id_from ='" +USERNAME+ "'");
+	}
+
 	public static Boolean sql_usernameExists(String s){
 		
 		Table t = runQuery("SELECT user_id FROM users WHERE user_id ='" +s+"'");
@@ -1185,8 +1244,6 @@ public class Main {
 		System.out.println("\n==============================================\n");
 	}
 
-	
-	//TODO: FINISH THESE
 	public static void sql_printMovieInfo(String video_id){
 		Table t = runQuery(
 				"SELECT * FROM video " +
