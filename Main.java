@@ -824,7 +824,7 @@ public class Main {
 	}
 
 	public static void rateMovie(){
-		Table t = runQuery("SELECT user_id FROM rate WHERE user_id = '" +USERNAME+ "'");
+		Table t = runQuery("SELECT user_id FROM rate WHERE user_id = '" +USERNAME+ "' AND video_id =" +currMovie );
 		if(t == null){
 			System.out.printf("Give a rating between 0 - 10: ");
 			int Input = getIntInput();
