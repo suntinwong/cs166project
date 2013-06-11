@@ -117,7 +117,12 @@ public class Main {
 				System.out.println("2.\tFIND A USER");
 				System.out.println("3.\tVIEW MY WALL");
 				System.out.println("4.\tEDIT SETTINGS");
-				if(isSuperUser){System.out.println("5.\tADD NEW MOVIE [SuperUser] ");}
+				if(isSuperUser){
+					System.out.println("5.\tADD NEW MOVIE [SuperUser] ");
+					System.out.println("6.\tADD NEW DIRECTOR [SuperUser] ");
+					System.out.println("7.\tADD NEW AUTHOR [SuperUser] ");
+					System.out.println("8.\tADD NEW ACTOR [SuperUser] ");
+				}
 				System.out.println("0.\tLOGOUT");
 				System.out.printf("\n Select one of the above options:");
 				int input = getIntInput();
@@ -147,6 +152,19 @@ public class Main {
 				case 5:
 					if(isSuperUser){addNewMovie();}
 					break;
+					
+				case 6:
+					if(isSuperUser){addNewDirector();}
+					break;
+				
+				case 7:
+					if(isSuperUser){addNewAuthor();}
+					break;
+					
+				case 8:
+					if(isSuperUser){addNewActor();}
+					break;
+				
 					
 				case 0:
 					page = Page.LOGIN;
@@ -736,8 +754,74 @@ public class Main {
 		System.out.println("Press any key to continue");
 		getStringInput();
 		page = Page.MAIN_MENU;
+	}
+	
+	public static void addNewDirector(){
+		String inputs = getCheckInput("Director",true,40);
+		String a_lname = inputs.substring(0,inputs.indexOf(","));
+		String a_fname = inputs.substring(inputs.indexOf(",")+1);
+		Table t3 = runQuery("SELECT * FROM director WHERE first_name = '"+ a_fname + "' AND last_name ='" +a_lname+"'");
+		String a_id = null;
+		if(t3 == null){
+			Table temp = runQuery("SELECT COUNT(*) FROM director");
+			a_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+			dbUpdate("INSERT INTO director VALUES ("+a_id +",'"+a_fname+"','"+a_lname+"')");
+			System.out.println("\nDirector Created!");
+		}
+		else
+			{System.out.println(a_fname + " " + a_lname + " Already exists!");}
 		
 		
+		System.out.println("Returning to Main Menu...");
+		System.out.println("Press any key to continue");
+		getStringInput();
+		page = Page.MAIN_MENU;
+		
+	}
+	
+	public static void addNewActor(){
+		String inputs = getCheckInput("Actor",true,40);
+		String a_lname = inputs.substring(0,inputs.indexOf(","));
+		String a_fname = inputs.substring(inputs.indexOf(",")+1);
+		Table t3 = runQuery("SELECT * FROM star WHERE first_name = '"+ a_fname + "' AND last_name ='" +a_lname+"'");
+		String a_id = null;
+		if(t3 == null){
+			Table temp = runQuery("SELECT COUNT(*) FROM star");
+			a_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+			dbUpdate("INSERT INTO star VALUES ("+a_id +",'"+a_fname+"','"+a_lname+"')");
+			System.out.println("\nActor Created!");
+		}
+		else
+			{System.out.println(a_fname + " " + a_lname + " Already exists!");}
+		
+		
+		System.out.println("Returning to Main Menu...");
+		System.out.println("Press any key to continue");
+		getStringInput();
+		page = Page.MAIN_MENU;
+		
+	}
+	
+	public static void addNewAuthor(){
+		String inputs = getCheckInput("Author",true,40);
+		String a_lname = inputs.substring(0,inputs.indexOf(","));
+		String a_fname = inputs.substring(inputs.indexOf(",")+1);
+		Table t3 = runQuery("SELECT * FROM author WHERE first_name = '"+ a_fname + "' AND last_name ='" +a_lname+"'");
+		String a_id = null;
+		if(t3 == null){
+		Table temp = runQuery("SELECT COUNT(*) FROM author");
+			a_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+			dbUpdate("INSERT INTO author VALUES ("+a_id +",'"+a_fname+"','"+a_lname+"')");
+			System.out.println("\nAuthor Created!");
+		}
+		else
+			{System.out.println(a_fname + " " + a_lname + " Already exists!");}
+		
+		
+		System.out.println("Returning to Main Menu...");
+		System.out.println("Press any key to continue");
+		getStringInput();
+		page = Page.MAIN_MENU;
 	}
 	
 	
@@ -795,16 +879,16 @@ public class Main {
 		String returnval = "";
 
 		while(!valid){
+			if(required) {System.out.printf("(Required),");}
 			if(s.equals("Director")||s.equals("Author") ||s.equals("Actor") )
-				{System.out.printf("%s: (lastname,firstname): ",s);}
-			else if(required) {System.out.printf("%s (required): ",s);}
-			else {System.out.printf("%s: ",s);}
+				{System.out.printf("(lastname,firstname),");}
+			System.out.printf("(Max characters: %d)\n%s: ",maxlength,s);
 			String Input = getStringInput();
 
 			//When speical case passwords
 			String Input2 = "";
 			if(s.equals("PASSWORD")){
-				System.out.printf("CONFIRM PASSWORD (required): ");
+				System.out.printf("CONFIRM PASSWORD: ");
 				Input2 = getStringInput();
 			}
 
@@ -833,8 +917,8 @@ public class Main {
 		int returnval = 0;
 
 		while(!valid){
-			if(required) {System.out.printf("%s (required): ",s);}
-			else {System.out.printf("%s: ",s);}
+			if(required) {System.out.printf("(Required),");}
+			System.out.printf("(Number between %d to %d)\n%s: ",min,max,s);
 			int Input = getIntInput();
 
 			//Check to see if its a valid input
@@ -853,7 +937,7 @@ public class Main {
 		String input = "y";
 		while(input.equals("Y") || input.equals("y")){
 			list.add(getCheckInput(s,required,maxchar));
-			System.out.printf("Add another author? (y/n):");
+			System.out.printf("Add another %s? (y/n):",s);
 			input = getStringInput();
 		}
 		return list;
@@ -1178,21 +1262,21 @@ public class Main {
 
 	public static void sql_printFollowing(){
 		Table t = runQuery("SELECT user_id_to FROM follow WHERE user_id_from ='"+USERNAME+"'");
-		String s = t.toString().substring(11);
 		searchResults.clear();
-		int lastindex = 0;
-		while(lastindex != -1){
-			lastindex++;
-			searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
-			lastindex = s.indexOf("\n",lastindex);
-		}
-
-		//print if needed
-		if(searchResults.size() == 0)
+		if(t == null)
 			{System.out.println("You are not following anyone!");}
+			
 		else{
+			String s = t.toString().substring(11);
+			int lastindex = 0;
+			while(lastindex != -1){
+				lastindex++;
+				searchResults.add(s.substring(lastindex,s.indexOf("\t",lastindex)));
+				lastindex = s.indexOf("\n",lastindex);
+			}
 			for(int i = 0; i < searchResults.size(); i++)
 				{System.out.println(Integer.toString(i+1) + ".\t"+ searchResults.get(i));}
+			
 		}
 	}
 
@@ -1232,28 +1316,13 @@ public class Main {
 		else return false; //return false if it doesnt exist
 	}
 
-
-	//TODO:: SQL QUERY delete user foreverand erver does not work atm
 	public static void sql_deleteUser(String user_id){
-		//dete ratings
 		runQuery("DELETE FROM rate WHERE user_id = '" + user_id +"'");
-		
-		//delete comments
 		runQuery("DELETE FROM comment WHERE user_id = '" + user_id +"'");
-		
-		//delete likes
 		runQuery("DELETE FROM likes WHERE user_id = '" + user_id +"'");
-		
-		//delete superuser
 		runQuery("DELETE FROM super_user WHERE super_user_id = '" + user_id +"'");
-		
-		//delete following & followers
 		runQuery("DELETE FROM follow WHERE user_id_to  = '" + user_id +"' OR user_id_from ='" + user_id +"'");
-		
-		//delete orders
 		runQuery("DELETE FROM orders WHERE user_id = '" + user_id +"'");
-		
-		//delete user
 		runQuery("DELETE FROM users WHERE user_id = '" + user_id +"'");
 	}
 
