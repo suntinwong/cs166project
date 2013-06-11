@@ -618,17 +618,18 @@ public class Main {
 		page = Page.LOGIN;
 	}
 
-	//todo: add directors, authors, episode ,season
 	public static void addNewMovie(){
 		String titleInput = getCheckInput("Title",true,50);
 		int yearInput = getCheckInput2("Year",true,1500,3000);
 		String director = getCheckInput("Director",true,40);
 		ArrayList<String> authors = getCheckInputArray("Author",true,40);
-		//to do: genre
+		ArrayList<String> actors = getCheckInputArray("Actor",true,40);
+		String genre = getGenreInput();
 		int online_priceInput = getCheckInput2("Online Price",true,0,9999999);
 		int dvd_priceInput = getCheckInput2("DVD Price",true,0,999999);
 		int votesInput = 0;
 		int ratingInput = 0;	
+		String seriesInput = "";
 		String episodeInput = "";
 		int seasonInput = 0;
 			
@@ -639,8 +640,9 @@ public class Main {
 			{isTVSHOW = true;}
 		
 		if(isTVSHOW){
-			episodeInput = getCheckInput("Episode #",true,9);
+			seriesInput = getCheckInput("Series",true,50);
 			seasonInput = getCheckInput2("Season #",true,0,999); 
+			episodeInput = getCheckInput("Episode #",true,9);
 		}
 		
 		//get video number
@@ -679,6 +681,27 @@ public class Main {
 			else	{a_id = t3.getInfoFromFirstTuple("author_id");}
 			dbUpdate("INSERT INTO written VALUES ("+vid_id+","+a_id+")");
 		}
+
+		//actors
+		for(int i = 0; i < actors.size(); i++){
+			String a_lname = actors.get(i).substring(0,actors.get(i).indexOf(","));
+			String a_fname = actors.get(i).substring(actors.get(i).indexOf(",")+1);
+			Table t3 = runQuery("SELECT * FROM star WHERE first_name = '"+ a_fname + "' AND last_name ='" +a_lname+"'");
+			String a_id = null;
+			if(t3 == null){
+				Table temp = runQuery("SELECT COUNT(*) FROM star");
+				a_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+				dbUpdate("INSERT INTO star VALUES ("+a_id +",'"+a_fname+"','"+a_lname+"')");
+			}
+			else	{a_id = t3.getInfoFromFirstTuple("star_id");}
+			dbUpdate("INSERT INTO played VALUES ("+vid_id+","+a_id+")");
+		}
+
+		Table t4 = runQuery("SELECT genre_id FROM genre WHERE genre_name ='"+genre+"'");
+		String genre_id = t4.getInfoFromFirstTuple("genre_id");
+		dbUpdate("INSERT INTO categorize VALUES ("+vid_id+","+genre_id+")");
+
+		//todo:Series, season, episode
 		
 		
 	
@@ -746,7 +769,7 @@ public class Main {
 		String returnval = "";
 
 		while(!valid){
-			if(s.equals("Director")||s.equals("Author") )
+			if(s.equals("Director")||s.equals("Author") ||s.equals("Actor") )
 				{System.out.printf("%s: (lastname,firstname): ",s);}
 			else if(required) {System.out.printf("%s (required): ",s);}
 			else {System.out.printf("%s: ",s);}
@@ -764,7 +787,7 @@ public class Main {
 				{System.out.printf("Invalid, username already exsits");}
 			else if(s.equals("PASSWORD") && !Input.equals(Input2))
 				{System.out.println("Passwords to not match. Try again.");}
-			else if( (s.equals("Director") || s.equals("Author")) && Input.indexOf(",") ==-1 )
+			else if( (s.equals("Director") || s.equals("Author") || s.equals("Actor") ) && Input.indexOf(",") ==-1 )
 				{System.out.println("Invalid, must follow format: lastname,firstname");}
 			else if( (Input.equals("") && required))
 				{System.out.printf("Invalid. Must input something.\n");}
@@ -971,6 +994,22 @@ public class Main {
 			System.out.printf(s.substring(lastindex,s.indexOf("\t",lastindex)));
 			lastindex = s.indexOf("\n",lastindex);
 		}
+	}
+
+	public static String getGenreInput(){
+		String s = "";
+		Boolean valid = false;
+		while(!valid){
+			clearConsole();
+			printAllGenres();
+			System.out.printf("\n\n Select one of the above genres: ");			
+			String input = getStringInput();
+			Table t = runQuery("SELECT genre_name FROM genre WHERE genre_name ='"+input+"'");
+			if(t != null){valid = true; s = input;}
+			else {System.out.printf("\nIncorrect genre selection, try again"); getStringInput();}
+		}
+
+		return s;
 	}
 
 	
