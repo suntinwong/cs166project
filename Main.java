@@ -12,7 +12,7 @@ public class Main {
 	//This does nothing. Don't worry about it... testing comment 123
 	public Main() {}
 	
-	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH,WATCH_ONLINE,USER_INFO};
+	enum Page {LOGIN, CREATE_NEW, MAIN_MENU, MOVIE_SEARCH, MOVIE_INFO, FOLLOWING, FOLLOWING_EDIT, SETTINGS, SEARCH_RESULTS,USER_SEARCH,WATCH_ONLINE,USER_INFO,MOVIE_COMMENTS};
 	static Page page = Page.LOGIN;
 	static String USERNAME = null;
 	static EmbeddedSQL db = null;
@@ -24,6 +24,7 @@ public class Main {
 	static String searchedInput = "";	
 
 	static ArrayList<String> searchResults = new ArrayList<String>();
+	static ArrayList<String> commentList = new ArrayList<String>();
 	static String movieInfo = "";
 
 	public static void main(String args[]) {
@@ -324,8 +325,6 @@ public class Main {
 			}
 			break;
 			
-
-			
 		//DETAIL MOVIE INFORMTION	
 		case MOVIE_INFO:
 			lockRepeat = true;
@@ -362,7 +361,8 @@ public class Main {
 					break;
 
 				case 3:
-					sql_printComments(currMovie);
+					page = Page.MOVIE_COMMENTS;
+					lockRepeat = false;
 					break;
 
 				case 4:
@@ -387,6 +387,38 @@ public class Main {
 					getStringInput();
 					break;
 				}
+			}
+			break;
+
+		//Comments for specific movie
+		case MOVIE_COMMENTS:
+		
+		lockRepeat = true;
+			while(lockRepeat){
+				clearConsole();
+				System.out.println("=Video Comments=-");
+				sql_printComments(currMovie);
+				System.out.println("0.\tBACK TO MAIN MENU");
+				if(isSuperUser){
+					for(int i = 0; i < commentList.size(); i++)
+						{System.out.println(Integer.toString(i+1) + ".\tDELETE COMMENT #" + Integer.toString(i+1)+" [SuperUser]");}
+				}
+				System.out.printf("\n Select one of the above options:");
+				int input = getIntInput();
+				
+					if(input == 0){
+						page = Page.MOVIE_INFO;
+						lockRepeat = false;
+					}
+					else if(isSuperUser && input-1 < commentList.size()){
+						sql_deleteComment(commentList.get(input-1));
+					}
+
+					else{
+						System.out.println("Invalid input. Please try again.");
+						getStringInput();
+					}
+				
 			}
 			break;
 
@@ -1288,6 +1320,20 @@ public class Main {
 		System.out.println("Press any key to continue");
 		getStringInput();
 	}
+	
+	public static void sql_deleteComment(String comment_id){
+		System.out.printf("Delete Comment? Are you sure? (y/n):");
+		String input = getStringInput();
+		if(input.equals("y") || input.equals("Y")){
+			runQuery("DELETE FROM comment WHERE comment_id = '" + comment_id +"'");
+			System.out.println("Comment Deleted");
+		}
+		else{
+			System.out.println("Action Cancelled");
+			System.out.println("Press any key to continue");
+			getStringInput();
+		}
+	}
 
 	public static void sql_rateMovie(int rating){
 		dbUpdate("INSERT INTO rate " +
@@ -1359,23 +1405,26 @@ public class Main {
 	
 	public static void sql_printComments(String video_id){
 		Table t = runQuery(
-				"SELECT user_id, comment_time, content " +
+				"SELECT user_id, comment_time, content,comment_id " +
 				"FROM comment " +
 				"WHERE video_id = " + video_id + " " +
 				"ORDER BY comment_time");
-		System.out.println("\nCOMMENTS:");
+		int comment_num = 1;
+		commentList.clear();
 		System.out.println("-------------------------------");
 		if(t != null){
 			for (ArrayList<String> i : t.getTuples()) {
-				System.out.println(i.get(1) + "\n" + i.get(0) + " commented:\n\"" + i.get(2) +"\"\n\n");
+				System.out.printf("Comment #%d:\n",comment_num);
+				System.out.println(i.get(1) + ", " + i.get(0) + " commented:\n\"" + i.get(2) +"\"\n");
+				comment_num++;
+				commentList.add(i.get(3));
 			}
 		}
 		else{
-			System.out.printf("No comments for this video.\nBe the first to comment!");
+			System.out.printf("No comments for this video.\nBe the first to comment!\n");
 		}
 		System.out.println("-------------------------------\n");
-		System.out.println("Press any key to continue");
-		getStringInput();
+		
 	}
 	
 	public static int sql_getBalance(){
