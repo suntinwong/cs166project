@@ -376,8 +376,7 @@ public class Main {
 			
 			while(lockRepeat){
 				clearConsole();
-				System.out.println("=SEARCHED USER's INFO=");
-				System.out.println(currUser);
+				System.out.println("=USER's INFO=");
 				sql_printUserInfo(currUser);
 				System.out.println("Select what you would like to do:");
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
@@ -1042,7 +1041,8 @@ public class Main {
 
 	//TODO:: SQL QUERY add movie_id to favoritied movie list
 	public static void sql_favoriteMovie(String movie_id){
-
+		dbUpdate("INSERT INTO likes " +
+			"VALUES ('"+ USERNAME + "'," + movie_id + ")");
 	}
 
 	//TODO:: SQL QUERY add user_id to followed user list
@@ -1169,8 +1169,21 @@ public class Main {
 		System.out.println("E-Mail: " + email);
 
 		//Print their favorited movies:
+		System.out.printf("Favorites: ");
+		Table t2 = runQuery("SELECT V.title FROM video V, likes L WHERE V.video_id = L.video_id AND L.user_id = '" + currUser +"'");
+		if(t2 != null){
+			String s = t2.toString().substring(9);
+			int lastindex = 0;
+				while(lastindex != -1){
+				if(lastindex != 0){System.out.printf(", ");}
+				lastindex++;
+				System.out.printf(s.substring(lastindex,s.indexOf("\t",lastindex) ) );
+				lastindex = s.indexOf("\n",lastindex);
+			}
+		}
+		else{System.out.printf(" None");}
 
-		System.out.println("==============================================\n");
+		System.out.println("\n==============================================\n");
 	}
 
 	
