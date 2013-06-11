@@ -343,11 +343,11 @@ public class Main {
 					break;
 
 				case 3:
-					//sql_printMovieComments();
+					sql_printComments(currMovie);
 					break;
 
 				case 4:
-					sql_createComment(currMovie);
+					writeComment();
 					break;
 
 				case 5:
@@ -812,17 +812,22 @@ public class Main {
 	}
 
 	public static void rateMovie(){
-		System.out.printf("Give a rating between 0 - 10: ");
-		int Input = getIntInput();
-		if(Input < 0 || Input > 10){
-			System.out.println("\nInvalid Rating.");
+		Table t = runQuery("SELECT user_id FROM rate WHERE user_id = '" +USERNAME+ "'");
+		if(t == null){
+			System.out.printf("Give a rating between 0 - 10: ");
+			int Input = getIntInput();
+			if(Input < 0 || Input > 10){
+				System.out.println("\nInvalid Rating.");
+			}
+			else{
+				sql_rateMovie(Input);
+				System.out.println("Rating Saved!");
+			}
 		}
-		else{
-			System.out.println("Rating Saved!");
-			sql_rateMovie(Input);
-			System.out.println("\nPress any Key to Continue");
-			getStringInput();
-		}
+		else
+			{System.out.printf("You have already rated this movie.");}
+		System.out.println("\nPress any Key to Continue");
+		getStringInput();
 	}
 
 	public static void favoriteMovie(){
@@ -1021,14 +1026,18 @@ public class Main {
 
 	}
 
-	//TODO:: SQL QUERY write comment to current movie i'm viewing
 	public static void sql_writeComment(String comment){
-
+		dbUpdate(
+				"INSERT INTO comment " +
+				"VALUES (DEFAULT,'" + USERNAME + "'," + currMovie + ",NOW(),'" + comment + "')");
+		System.out.println("You have succesfully Commented on this movie!");
+		System.out.println("Press any key to continue");
+		getStringInput();
 	}
 
-	//TODO:: SQL QUERY rate current movie
 	public static void sql_rateMovie(int rating){
-
+		dbUpdate("INSERT INTO rate " +
+			"VALUES ('"+ USERNAME + "'," + currMovie + ",NOW(),"+rating+")");
 	}
 
 	//TODO:: SQL QUERY add movie_id to favoritied movie list
@@ -1091,12 +1100,19 @@ public class Main {
 				"FROM comment " +
 				"WHERE video_id = " + video_id + " " +
 				"ORDER BY comment_time");
-		System.out.println("\nComments");
+		System.out.println("\nCOMMENTS:");
 		System.out.println("-------------------------------");
-		for (ArrayList<String> i : t.getTuples()) {
-			System.out.println(i.get(0) + "\t" + i.get(1) + "\n" + i.get(2));
-			System.out.println("\n-------------------------------\n");
+		if(t != null){
+			for (ArrayList<String> i : t.getTuples()) {
+				System.out.println(i.get(1) + "\n" + i.get(0) + " commented:\n\"" + i.get(2) +"\"\n\n");
+			}
 		}
+		else{
+			System.out.printf("No comments for this video.\nBe the first to comment!");
+		}
+		System.out.println("-------------------------------\n");
+		System.out.println("Press any key to continue");
+		getStringInput();
 	}
 	
 	public static int sql_getBalance(){
@@ -1295,7 +1311,7 @@ public class Main {
 		}
 		
 		System.out.println("Views: " + views);
-		System.out.println("Avgerage Rating: " + avgRating);
+		System.out.println("Average Rating: " + avgRating);
 		System.out.println("Your Rating: " + yourRating);
 		System.out.println("Online Price: $" + online_price);
 		System.out.println("DVD Price: $" + dvd_price);
