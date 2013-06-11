@@ -629,8 +629,8 @@ public class Main {
 		int dvd_priceInput = getCheckInput2("DVD Price",true,0,999999);
 		int votesInput = 0;
 		int ratingInput = 0;	
-		String seriesInput = "";
-		String episodeInput = "";
+		String seriesInput = null;
+		String episodeInput = null;
 		int seasonInput = 0;
 			
 		System.out.println("TV Show? (y/n)");
@@ -648,11 +648,36 @@ public class Main {
 		//get video number
 		Table t = runQuery("SELECT COUNT(*) FROM video");
 		String vid_id = Integer.toString((Integer.parseInt(t.getInfoFromFirstTuple("count"))+1));
-	
+
+		//Series
+		Table t5 = runQuery("SELECT series_id FROM series WHERE title ='" + seriesInput + "'");
+		String series_id = null;
+		if(t5 == null){
+			Table temp = runQuery("SELECT COUNT(*) FROM series");
+			series_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+			dbUpdate("INSERT INTO series VALUES ("+series_id +",'"+seriesInput+"')");
+		}
+		else	{series_id = t5.getInfoFromFirstTuple("series_id");}
 		
+		//season
+		Table t6 = runQuery("SELECT season_id FROM season WHERE series_id ='"+series_id + "'");
+		String season_id = null;
+		if(t6 == null){
+			Table temp = runQuery("SELECT COUNT(*) FROM season");
+			season_id = Integer.toString((Integer.parseInt(temp.getInfoFromFirstTuple("count"))+1));
+			dbUpdate("INSERT INTO season VALUES ("+season_id +","+ series_id +",'"+Integer.toString(seasonInput)+"')");
+		}
+		else	{season_id = t6.getInfoFromFirstTuple("season_id");}
+	
 		//video table
-		dbUpdate("INSERT INTO video " +
-					"VALUES ('"+vid_id+ "','" + titleInput + "'," + yearInput + "," + online_priceInput + "," + dvd_priceInput + ")");
+		dbUpdate("INSERT INTO video VALUES "+
+				"('" +vid_id+ "','" + titleInput + "'," + yearInput + "," + online_priceInput + "," + dvd_priceInput + ","
+				+votesInput+"," +ratingInput + ",'" +episodeInput+ "'," +season_id + ")");
+		
+		//Genre
+		Table t4 = runQuery("SELECT genre_id FROM genre WHERE genre_name ='"+genre+"'");
+		String genre_id = t4.getInfoFromFirstTuple("genre_id");
+		dbUpdate("INSERT INTO categorize VALUES ("+vid_id+","+genre_id+")");
 		
 		//director&directed
 		String d_lname = director.substring(0,director.indexOf(","));
@@ -697,12 +722,6 @@ public class Main {
 			dbUpdate("INSERT INTO played VALUES ("+vid_id+","+a_id+")");
 		}
 
-		Table t4 = runQuery("SELECT genre_id FROM genre WHERE genre_name ='"+genre+"'");
-		String genre_id = t4.getInfoFromFirstTuple("genre_id");
-		dbUpdate("INSERT INTO categorize VALUES ("+vid_id+","+genre_id+")");
-
-		//todo:Series, season, episode
-		
 		
 	
 		System.out.println("\nMoive Created!");
