@@ -549,7 +549,6 @@ public class Main {
 		String passwordInput = getStringInput();
 
 		//Validate log in
-		//TODO: Remove this testing parameter !dbloaded
 		if (!dbLoaded || validateLogin(usernameInput, passwordInput)) {
 			USERNAME = usernameInput;
 			page = Page.MAIN_MENU;
@@ -574,10 +573,8 @@ public class Main {
 	//////////////////////////////////////////////
 	/////////////Create & Delete/////////////////
 	/////////////////////////////////////////////
-	
-	//TODO: Finish this function
+
 	//Creates a new account. Stores the data in the database.
-	//TODO: Get address and other info?
 	public static void createNewAccount(){
 
 		String usernameInput = getCheckInput("USERNAME",true,9);		
@@ -606,6 +603,7 @@ public class Main {
 		page = Page.LOGIN;
 	}
 
+	//todo: add directors, authors, episode ,season
 	public static void addNewMovie(){
 		String titleInput = getCheckInput("Title",true,50);
 		int yearInput = getCheckInput2("Year",true,1500,3000);
@@ -1039,7 +1037,6 @@ public class Main {
 			"VALUES ('"+ USERNAME + "'," + currMovie + ",NOW(),"+rating+")");
 	}
 
-	//TODO:: SQL QUERY add movie_id to favoritied movie list
 	public static void sql_favoriteMovie(String movie_id){
 		dbUpdate("INSERT INTO likes " +
 			"VALUES ('"+ USERNAME + "'," + movie_id + ")");
@@ -1052,7 +1049,8 @@ public class Main {
 
 	//TODO:: SQL QUERY if username exsits in database
 	public static Boolean sql_usernameExists(String s){
-
+		
+		Table t = runQuery("SELECT user_id FROM users WHERE user_id ='" +s+"'");
 		return false; //return false if it doesnt exist
 	}
 
