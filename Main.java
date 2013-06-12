@@ -437,8 +437,9 @@ public class Main {
 				System.out.println("0.\tBACK TO SEARCH RESULTS");
 				if(!isfollowing()){System.out.println("1.\tFOLLOW USER");}
 				else {System.out.println("1.\tUN-FOLLOW USER");}
-				if(isSuperUser){System.out.println("2.\tDELETE USER [SuperUser]");}
-				System.out.printf("Select one of the above options:");
+				System.out.println("2.\tVIEW USER's HISTORY");
+				if(isSuperUser){System.out.println("3.\tDELETE USER [SuperUser]");}
+				System.out.printf(" Select one of the above options:");
 				int input = getIntInput();
 				switch (input) {
 					case 0:
@@ -450,9 +451,17 @@ public class Main {
 						if(!isfollowing()){followUser();}
 						else {unfollowUser(currUser);}
 						break;
-				
+
 					case 2:
+						clearConsole();						
+						sql_printUpdates(currUser);
+						System.out.println("\nPress any key to continue");
+						getStringInput();
+						break;
+				
+					case 3:
 						if(isSuperUser){
+							clearConsole();
 							if(deleteUser(currUser)){lockRepeat = false;}
 						}
 						break;
@@ -1180,6 +1189,71 @@ public class Main {
 	//////////////////////////////////////////////
 	/////////////SQL Functions////////////////
 	//////////////////////////////////////////////
+	public static void sql_printUpdates(String user_id){
+		//print comments
+		Table t = runQuery("SELECT content,comment_time,video_id FROM comment WHERE user_id ='"+user_id+"'" );
+		if(t != null){
+			ArrayList<String> contents = t.getInfoFromColumn("content");
+			ArrayList<String> times = t.getInfoFromColumn("comment_time");
+			ArrayList<String> video_ids = t.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " commented on " + video_name + ":");
+				System.out.println(contents.get(i));
+				System.out.println("-----------------------------------");
+			}
+		}
+
+		//print rating
+		Table t2 = runQuery("SELECT rating,rate_time,video_id FROM rate WHERE user_id ='"+user_id+"'" );
+		if(t2 != null){
+			ArrayList<String> contents = t2.getInfoFromColumn("rating");
+			ArrayList<String> times = t2.getInfoFromColumn("rate_time");
+			ArrayList<String> video_ids = t2.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " rated " + video_name + ":" + contents.get(i) + "/10");
+				System.out.println("-----------------------------------");
+			}
+		}
+
+		//print ordering
+		Table t3 = runQuery("SELECT order_time,video_id FROM orders WHERE user_id ='"+user_id+"'" );
+		if(t3 != null){
+			ArrayList<String> times = t3.getInfoFromColumn("order_time");
+			ArrayList<String> video_ids = t3.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " ordered/watched: " + video_name);
+				System.out.println("-----------------------------------");
+			}
+		}
+		
+		//print favoriting
+		Table t4 = runQuery("SELECT like_time,video_id FROM likes WHERE user_id ='"+user_id+"'" );
+		if(t3 != null){
+			ArrayList<String> times = t4.getInfoFromColumn("like_time");
+			ArrayList<String> video_ids = t4.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " favorited: " + video_name);
+				System.out.println("-----------------------------------");
+			}
+		}
+	}
+
 
 	public static void sql_getTitle(String Input){
 		searchResults.clear();
@@ -1298,14 +1372,13 @@ public class Main {
 
 	//TODO:: SQL QUERY print My wall
 	public static void sql_printMyWall(){
-		System.out.println("----------------------------------");
-		for(int i = 0; i < 3; i++){
-			String time = "time";
-			String username = "username";
-			String activity = "activity";
-			System.out.printf(time + "\n" + username + " did\n" + activity + "\n\n");
+		Table t = runQuery("SELECT user_id_to FROM comment WHERE user_id_from  ='"+USERNAME+"'" );
+		if(t != null){
+			ArrayList<String> followed_users = t.getInfoFromColumn("user_id_to");
+			for(int i = 0; i < folowed_users.size(); i++){
+				sql_printUserInfo(followed_users.get(i));
+			}
 		}
-		System.out.println("----------------------------------");
 	}
 
 	public static void sql_printFollowing(){
@@ -1358,7 +1431,7 @@ public class Main {
 
 	public static void sql_favoriteMovie(String movie_id){
 		dbUpdate("INSERT INTO likes " +
-			"VALUES ('"+ USERNAME + "'," + movie_id + ")");
+			"VALUES ('"+ USERNAME + "'," + movie_id + ",NOW())");
 	}
 
 	public static void sql_followUser(String user_id){
@@ -1468,7 +1541,7 @@ public class Main {
 		String Input = getStringInput();
 		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
 			returnval = true;
-			System.out.println("\nUser Followed");
+			System.out.println("\nDVD ordered.");
 		}
 		else{System.out.println("\nCancled");}
 			
@@ -1482,7 +1555,7 @@ public class Main {
 		}
 		else{
 			sql_subtractFromBlance(price);
-			dbUpdate("INSERT INTO orders VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "')");
+			dbUpdate("INSERT INTO orders VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "',NOW())");
 			System.out.println("\nTransaction Complete!\n");
 			return returnval;
 		}
@@ -1567,16 +1640,16 @@ public class Main {
 		String year = t.getInfoFromFirstTuple("year");
 		
 		//Get List of directors
-				String director = null;
-				if(d != null){
-					ArrayList<String> fname = d.getInfoFromColumn("first_name");
-					ArrayList<String> lname = d.getInfoFromColumn("last_name");
-					for (int i = 0; i < fname.size(); i++){
-						if (director == null){director = String.format(fname.get(i) + " " + lname.get(i));}
-						else{director = director + String.format(", " + fname.get(i) + " " + lname.get(i));}
-					}
-				}
-				if (director == null){director = "Unknown";}
+		String director = null;
+		if(d != null){
+			ArrayList<String> fname = d.getInfoFromColumn("first_name");
+			ArrayList<String> lname = d.getInfoFromColumn("last_name");
+			for (int i = 0; i < fname.size(); i++){
+				if (director == null){director = String.format(fname.get(i) + " " + lname.get(i));}
+				else{director = director + String.format(", " + fname.get(i) + " " + lname.get(i));}
+			}
+		}
+		if (director == null){director = "Unknown";}
 	
 		//Get List of authors
 		String author = null;
