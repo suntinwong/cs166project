@@ -1346,7 +1346,7 @@ public class Main {
 		}
 
 		//print ordering
-		Table t3 = runQuery("SELECT video_id FROM orders WHERE user_id ='"+user_id+"'" );
+		Table t3 = runQuery("SELECT order_time,video_id FROM orders WHERE user_id ='"+user_id+"'" );
 		if(t3 != null){
 			returncount++;
 			ArrayList<String> times = t3.getInfoFromColumn("order_time");
