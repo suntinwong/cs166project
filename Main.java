@@ -168,6 +168,10 @@ public class Main {
 				
 					
 				case 0:
+					clearConsole();
+					System.out.println("Sucessfully logged out!");
+					System.out.println("Press any key to continue");
+					getStringInput();
 					page = Page.LOGIN;
 					lockRepeat = false;
 					break;
@@ -660,13 +664,22 @@ public class Main {
 		String stateInput = getCheckInput("Address - state",false,10);
 		String countryInput = getCheckInput("Address - country",false,20);
 		String zipInput = getCheckInput("Address - zipcode",false,20);
-		String preferencesInput = getCheckInput("Preferred Generes",false,40);
-
+		String preferencesInput = getGenreInput(true);
+		
 		if(dbLoaded){
 			dbUpdate(
 					"INSERT INTO users " +
 					"VALUES ('" + usernameInput + "','" + passwordInput + "','" + firstInput + "','" + middleInput + "','" + lastInput + "','" + emailInput + "','" + street1Input + "','" + street2Input + "','" + stateInput + "','" + countryInput + "','" + zipInput + "', 0)");
 		}
+		
+		//todo finish prefers
+		/*while(){
+			String preferencesInput = getGenreInput(true);
+			if(!preferencesInput.equals("-1")){
+				String genre_id = 
+				dbUpdate("INSERT INTO prefers VALUES ('" + usernameInput+"',"+genre_id+")");
+			}
+		}*/
 		
 		System.out.println("\nAccount Created!");
 		System.out.println("Returning to the login page...");
@@ -681,7 +694,7 @@ public class Main {
 		String director = getCheckInput("Director",true,40);
 		ArrayList<String> authors = getCheckInputArray("Author",true,40);
 		ArrayList<String> actors = getCheckInputArray("Actor",true,40);
-		String genre = getGenreInput();
+		String genre = getGenreInput(false);
 		int online_priceInput = getCheckInput2("Online Price",true,0,9999999);
 		int dvd_priceInput = getCheckInput2("DVD Price",true,0,999999);
 		int votesInput = 0;
@@ -1014,7 +1027,7 @@ public class Main {
 			currIsMovie = true;
 			printAllGenres();	
 			System.out.printf("\n Select Genre:");
-			Input = getGenreInput();
+			Input = getGenreInput(false);
 			sql_getGenre(Input);
 		}
 		searchedInput = Input;
@@ -1143,7 +1156,7 @@ public class Main {
 		}
 	}
 
-	public static String getGenreInput(){
+	public static String getGenreInput(Boolean preferred){
 		String s = "";
 		Boolean valid = false;
 		while(!valid){
@@ -1152,10 +1165,13 @@ public class Main {
 			System.out.printf("\n\n Select one of the above genres: ");			
 			String input = getStringInput();
 			Table t = runQuery("SELECT genre_name FROM genre WHERE genre_name ='"+input+"'");
-			if(t != null){valid = true; s = input;}
-			else {System.out.printf("\nIncorrect genre selection, try again"); getStringInput();}
+			if(t!= null && preferred && input.equals(""))
+				{valid = true; s = "-1";}
+			else if(t != null)
+				{valid = true; s = input;}
+			else 
+				{System.out.printf("\nIncorrect genre selection, try again"); getStringInput();}
 		}
-
 		return s;
 	}
 
@@ -1434,10 +1450,18 @@ public class Main {
 	}
 	
 	public static Boolean sql_placeOrder(String video_id){
-		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
-		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
+		
+		//get name,address,email
+		/*
+		System.out.printf("Order DVD for yourself? (y/n):");
+		String orderforme = getStringInput();
+		if(orderforme.equals("y")|| orderforme.equals("Y")){ //using our defualt address
+		}
+		*/
 		
 		//Confirm payment
+		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
+		String dvd_price = t.getInfoFromFirstTuple("dvd_price");
 		Boolean returnval = false;
 		System.out.println("This DVD costs $" + dvd_price + ". Are you sure you? (y/n)");
 		sql_printBalance();
