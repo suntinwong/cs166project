@@ -1457,7 +1457,7 @@ public class Main {
 
 	public static void sql_unfollowUser(String user_id){
 		dbUpdate("DELETE FROM follow "+
-			"WHERE user_id_to = '" +currUser+ "'AND user_id_from ='" +USERNAME+ "'");
+			"WHERE user_id_to = '" +user_id+ "'AND user_id_from ='" +USERNAME+ "'");
 	}
 
 	public static Boolean sql_usernameExists(String s){
