@@ -1,4 +1,3 @@
-
 drop table users CASCADE;
 
 CREATE TABLE users (
@@ -130,6 +129,7 @@ drop table likes CASCADE;
 CREATE TABLE likes (
 	user_id VARCHAR(9) NOT NULL,
 	video_id INTEGER NOT NULL,
+	like_time TIMESTAMP,
 	PRIMARY KEY(user_id, video_id),
 	FOREIGN KEY(video_id) REFERENCES video,
 	FOREIGN KEY(user_id) REFERENCES users
@@ -139,6 +139,7 @@ CREATE TABLE orders (
 	order_id SERIAL PRIMARY KEY,
 	video_id INTEGER NOT NULL,
 	user_id VARCHAR(9) NOT NULL,
+	order_time TIMESTAMP,
 	FOREIGN KEY(video_id) REFERENCES video,
 	FOREIGN KEY(user_id) REFERENCES users
 );
