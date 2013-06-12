@@ -454,7 +454,8 @@ public class Main {
 
 					case 2:
 						clearConsole();						
-						sql_printUpdates(currUser);
+						if(!sql_printUpdates(currUser))
+							{System.out.println("\nNo recet updates for this user!\n");}
 						System.out.println("\nPress any key to continue");
 						getStringInput();
 						break;
@@ -483,6 +484,7 @@ public class Main {
 				clearConsole();
 				System.out.println("=FOLLOWING WALL=-");
 				sql_printMyWall();
+				System.out.println("===================================");
 				System.out.println("1.\tEDIT PEOPLE I AM FOLLOWING");
 				System.out.println("0.\tBACK TO MAIN MENU");
 				System.out.printf("\n Select one of the above options:");
@@ -1189,71 +1191,6 @@ public class Main {
 	//////////////////////////////////////////////
 	/////////////SQL Functions////////////////
 	//////////////////////////////////////////////
-	public static void sql_printUpdates(String user_id){
-		//print comments
-		Table t = runQuery("SELECT content,comment_time,video_id FROM comment WHERE user_id ='"+user_id+"'" );
-		if(t != null){
-			ArrayList<String> contents = t.getInfoFromColumn("content");
-			ArrayList<String> times = t.getInfoFromColumn("comment_time");
-			ArrayList<String> video_ids = t.getInfoFromColumn("video_id");
-			System.out.println("-----------------------------------");
-			for (int i = 0; i < times.size(); i++){
-				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
-				String video_name = temp.getInfoFromFirstTuple("title");
-				System.out.println(times.get(i));
-				System.out.println(user_id + " commented on " + video_name + ":");
-				System.out.println(contents.get(i));
-				System.out.println("-----------------------------------");
-			}
-		}
-
-		//print rating
-		Table t2 = runQuery("SELECT rating,rate_time,video_id FROM rate WHERE user_id ='"+user_id+"'" );
-		if(t2 != null){
-			ArrayList<String> contents = t2.getInfoFromColumn("rating");
-			ArrayList<String> times = t2.getInfoFromColumn("rate_time");
-			ArrayList<String> video_ids = t2.getInfoFromColumn("video_id");
-			System.out.println("-----------------------------------");
-			for (int i = 0; i < times.size(); i++){
-				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
-				String video_name = temp.getInfoFromFirstTuple("title");
-				System.out.println(times.get(i));
-				System.out.println(user_id + " rated " + video_name + ":" + contents.get(i) + "/10");
-				System.out.println("-----------------------------------");
-			}
-		}
-
-		//print ordering
-		Table t3 = runQuery("SELECT order_time,video_id FROM orders WHERE user_id ='"+user_id+"'" );
-		if(t3 != null){
-			ArrayList<String> times = t3.getInfoFromColumn("order_time");
-			ArrayList<String> video_ids = t3.getInfoFromColumn("video_id");
-			System.out.println("-----------------------------------");
-			for (int i = 0; i < times.size(); i++){
-				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
-				String video_name = temp.getInfoFromFirstTuple("title");
-				System.out.println(times.get(i));
-				System.out.println(user_id + " ordered/watched: " + video_name);
-				System.out.println("-----------------------------------");
-			}
-		}
-		
-		//print favoriting
-		Table t4 = runQuery("SELECT like_time,video_id FROM likes WHERE user_id ='"+user_id+"'" );
-		if(t3 != null){
-			ArrayList<String> times = t4.getInfoFromColumn("like_time");
-			ArrayList<String> video_ids = t4.getInfoFromColumn("video_id");
-			System.out.println("-----------------------------------");
-			for (int i = 0; i < times.size(); i++){
-				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
-				String video_name = temp.getInfoFromFirstTuple("title");
-				System.out.println(times.get(i));
-				System.out.println(user_id + " favorited: " + video_name);
-				System.out.println("-----------------------------------");
-			}
-		}
-	}
-
 
 	public static void sql_getTitle(String Input){
 		searchResults.clear();
@@ -1370,15 +1307,94 @@ public class Main {
 		}
 	}
 
-	//TODO:: SQL QUERY print My wall
-	public static void sql_printMyWall(){
-		Table t = runQuery("SELECT user_id_to FROM comment WHERE user_id_from  ='"+USERNAME+"'" );
+	public static Boolean sql_printUpdates(String user_id){
+
+		int returncount = 0;
+		//print comments
+		Table t = runQuery("SELECT content,comment_time,video_id FROM comment WHERE user_id ='"+user_id+"'" );
 		if(t != null){
-			ArrayList<String> followed_users = t.getInfoFromColumn("user_id_to");
-			for(int i = 0; i < folowed_users.size(); i++){
-				sql_printUserInfo(followed_users.get(i));
+			returncount++;
+			ArrayList<String> contents = t.getInfoFromColumn("content");
+			ArrayList<String> times = t.getInfoFromColumn("comment_time");
+			ArrayList<String> video_ids = t.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " commented on " + video_name + ":");
+				System.out.println(contents.get(i));
+				System.out.println("-----------------------------------");
 			}
 		}
+
+		//print rating
+		Table t2 = runQuery("SELECT rating,rate_time,video_id FROM rate WHERE user_id ='"+user_id+"'" );
+		if(t2 != null){
+			returncount++;
+			ArrayList<String> contents = t2.getInfoFromColumn("rating");
+			ArrayList<String> times = t2.getInfoFromColumn("rate_time");
+			ArrayList<String> video_ids = t2.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " rated " + video_name + ":" + contents.get(i) + "/10");
+				System.out.println("-----------------------------------");
+			}
+		}
+
+		//print ordering
+		Table t3 = runQuery("SELECT order_time,video_id FROM orders WHERE user_id ='"+user_id+"'" );
+		if(t3 != null){
+			returncount++;
+			ArrayList<String> times = t3.getInfoFromColumn("order_time");
+			ArrayList<String> video_ids = t3.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " ordered/watched: " + video_name);
+				System.out.println("-----------------------------------");
+			}
+		}
+		
+		//print favoriting
+		Table t4 = runQuery("SELECT like_time,video_id FROM likes WHERE user_id ='"+user_id+"'" );
+		if(t3 != null){
+			returncount++;
+			ArrayList<String> times = t4.getInfoFromColumn("like_time");
+			ArrayList<String> video_ids = t4.getInfoFromColumn("video_id");
+			System.out.println("-----------------------------------");
+			for (int i = 0; i < times.size(); i++){
+				Table temp = runQuery("SELECT title FROM video WHERE video_id = " + video_ids.get(i));		
+				String video_name = temp.getInfoFromFirstTuple("title");
+				System.out.println(times.get(i));
+				System.out.println(user_id + " favorited: " + video_name);
+				System.out.println("-----------------------------------");
+			}
+		}
+		if(returncount == 0) return false;
+		else return true;
+
+	}
+
+	//SQL QUERY print My wall
+	public static void sql_printMyWall(){
+		Table t = runQuery("SELECT user_id_to FROM follow WHERE user_id_from  ='"+USERNAME+"'" );
+		int printcount = 0;
+		if(t != null){
+			ArrayList<String> followed_users = t.getInfoFromColumn("user_id_to");
+			for(int i = 0; i < followed_users.size(); i++){
+				if(sql_printUpdates(followed_users.get(i))){
+					printcount++;
+				}				
+			}
+		}
+		if(printcount == 0){System.out.println("\nNo updates on your wall!\n");}
+
 	}
 
 	public static void sql_printFollowing(){
