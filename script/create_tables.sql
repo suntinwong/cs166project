@@ -1,5 +1,4 @@
 
-
 drop table users CASCADE;
 
 CREATE TABLE users (
@@ -163,3 +162,9 @@ CREATE TABLE comment (
 	FOREIGN KEY(user_id) REFERENCES users,
 	FOREIGN KEY(video_id) REFERENCES video
 );
+
+CREATE UNIQUE INDEX UIndex
+ON users (user_id);
+
+CREATE UNIQUE INDEX MIndex
+ON video (video_id);
