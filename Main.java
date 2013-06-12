@@ -1346,7 +1346,7 @@ public class Main {
 		}
 
 		//print ordering
-		Table t3 = runQuery("SELECT order_time,video_id FROM orders WHERE user_id ='"+user_id+"'" );
+		Table t3 = runQuery("SELECT video_id FROM orders WHERE user_id ='"+user_id+"'" );
 		if(t3 != null){
 			returncount++;
 			ArrayList<String> times = t3.getInfoFromColumn("order_time");
@@ -1599,7 +1599,7 @@ public class Main {
 		}
 		else{
 			sql_subtractFromBlance(price);
-			dbUpdate("INSERT INTO orders (order_id, video_id, user_id, order_time) VALUES (DEFAULT," + video_id + ",'" + USERNAME + "',NOW()");
+			dbUpdate("INSERT INTO orders VALUES (DEFAULT," + video_id + ",'" + USERNAME + "',NOW())");
 			System.out.println("\nTransaction Complete!\n");
 			return returnval;
 		}
