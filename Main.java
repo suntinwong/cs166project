@@ -356,7 +356,7 @@ public class Main {
 					break;
 
 				case 2:
-					if(sql_placeOrder(currMovie)){
+					if(sql_watchOnline(currMovie)){
 						page = Page.WATCH_ONLINE;
 						lockRepeat = false;
 					}
@@ -1538,6 +1538,34 @@ public class Main {
 		return Integer.valueOf(balance).intValue();
 	}
 	
+	public static Boolean sql_watchOnline(String video_id){
+		Table t = runQuery("SELECT * FROM video WHERE video_id =" + video_id);
+		String online_price = t.getInfoFromFirstTuple("online_price");
+		Boolean returnval = false;
+		System.out.println("This online video costs $" + online_price + ". Are you sure you? (y/n)");
+		sql_printBalance();
+		String Input = getStringInput();
+		if(Input.equals("yes") || Input.equals("Yes")  || Input.equals("YES") || Input.equals("y") || Input.equals("Y")){
+			returnval = true;
+			System.out.println("\nOnline Video Purchased.");
+		}
+		else{System.out.println("\nCancled");}
+			
+		if(!returnval) return returnval;
+		Integer price = Integer.valueOf(online_price);
+		
+		//Confirm suffecent funds
+		if(price > sql_getBalance()){
+			System.out.println("Insufficient funds! Add more to your balance through Settings.");
+			return returnval;
+		}
+		else{
+			sql_subtractFromBlance(price);
+			System.out.println("\nTransaction Complete!\n");
+			return returnval;
+		}
+	}
+	
 	public static Boolean sql_placeOrder(String video_id){
 		
 		//get name,address,email
@@ -1571,7 +1599,7 @@ public class Main {
 		}
 		else{
 			sql_subtractFromBlance(price);
-			dbUpdate("INSERT INTO orders VALUES (DEFAULT,"+ video_id + ",'" + USERNAME + "',NOW())");
+			dbUpdate("INSERT INTO orders (order_id, video_id, user_id, order_time) VALUES (DEFAULT," + video_id + ",'" + USERNAME + "',NOW()");
 			System.out.println("\nTransaction Complete!\n");
 			return returnval;
 		}
@@ -1822,7 +1850,7 @@ public class Main {
 	}
 	
 	public static void dbUpdate(String update){
-		System.out.println("UPDATE: " + update);
+		//System.out.println("UPDATE: " + update);
 		try {
 			db.executeUpdate(update);
 		} catch (Exception e) {
